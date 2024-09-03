@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, security
 from sqlalchemy.orm import Session
-from models import models, database
+from models import models, database, message
 from models.database import engine
+from models.message import Message
 from security import UserCreate, get_db, create_user, get_user, get_current_user, create_access_token, verify_password
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
@@ -11,8 +12,6 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-class Message(BaseModel):
-    content: str
 
 @app.post("/register")
 async def register(user: UserCreate, db: Session = Depends(get_db)):

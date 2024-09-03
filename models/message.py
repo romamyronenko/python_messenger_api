@@ -6,3 +6,4 @@ class Message(BaseModel):
     chat_id: int
     text: str
     user_id: int
+    content: str
