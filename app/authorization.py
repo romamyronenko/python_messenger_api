@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, security
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette import status
-from main import app
+from app.main import app
 from models import models
 from security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, get_current_user
 
