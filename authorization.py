@@ -1,16 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status, security
-from sqlalchemy.orm import Session
-from models import models, database, message
-from models.database import engine
-from models.message import Message
-from security import UserCreate, get_db, create_user, get_user, get_current_user, create_access_token, verify_password
+from _pydatetime import timedelta
+from fastapi import Depends, HTTPException, security
 from fastapi.security import OAuth2PasswordRequestForm
-from datetime import timedelta
-from pydantic import BaseModel
-
-models.Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
+from sqlalchemy.orm import Session
+from starlette import status
+from main import app
+from models import models
+from security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, get_current_user
 
 
 @app.post("/register")
@@ -44,27 +39,3 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 @app.get("/users/me")
 async def read_users_me(current_user: models.UserDB = Depends(get_current_user)):
     return current_user
-
-@app.get("/")
-def home():
-    return {"hello": "world"}
-
-@app.post("/chat/{chat_id}")
-def send_message(chat_id: int, message: Message):
-    pass
-
-@app.get("/chat/{chat_id}")
-def get_messages(chat_id: int):
-    pass
-
-@app.get("/contacts")
-def get_contacts():
-    pass
-
-@app.post("/chat")
-def create_chat():
-    pass
-
-if __name__ == '__main__':
-    import uvicorn
-    uvicorn.run("main:app")
