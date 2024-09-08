@@ -53,6 +53,14 @@ def create_user(db: Session, user: UserCreate):
 def get_user(db: Session, username: str):
     return db.query(models.UserDB).filter(models.UserDB.username == username).first()
 
+def get_db():
+    from models.database import SessionLocal
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -71,10 +79,3 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
-def get_db():
-    from models.database import SessionLocal
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
