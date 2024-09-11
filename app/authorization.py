@@ -1,15 +1,16 @@
-from _pydatetime import timedelta
-from fastapi import Depends, HTTPException, security, APIRouter
+from datetime import timedelta
+from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette import status
+from app import security
 from models import models
-from security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, get_current_user
+from app.security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, get_current_user
 
 register_router = APIRouter()
 login_router = APIRouter()
 
-@register_router.get("/register/")
+@register_router.post("/register")
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user(db, username=user.username)
     if db_user:
@@ -22,7 +23,7 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     new_user = create_user(db, user)
     return {"message": "User registered successfully", "user_id": new_user.id}
 
-@login_router.get("/login/")
+@login_router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
