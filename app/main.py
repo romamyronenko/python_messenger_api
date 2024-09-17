@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.testclient import TestClient
-from app.authorization import register_router, login_router
+from app.authorization import auth_router
 from models import models
 from models.database import engine
 from models.message import Message
@@ -9,10 +9,8 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(register_router)
-app.include_router(login_router)
+app.include_router(auth_router)
 client = TestClient(app)
-
 
 @app.get("/")
 def home():

@@ -7,10 +7,10 @@ from app import security
 from models import models
 from app.security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, get_current_user
 
-register_router = APIRouter()
-login_router = APIRouter()
+auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
-@register_router.post("/register")
+
+@auth_router.post("/register")
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user(db, username=user.username)
     if db_user:
@@ -23,7 +23,7 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     new_user = create_user(db, user)
     return {"message": "User registered successfully", "user_id": new_user.id}
 
-@login_router.post("/login")
+@auth_router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -38,6 +38,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@login_router.get("/users/me")
+@auth_router.get("/users/me")
 async def read_users_me(current_user: models.UserDB = Depends(get_current_user)):
     return current_user
