@@ -12,13 +12,12 @@ auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
 @auth_router.post("/register")
 async def register(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = get_user(db, username=user.username)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+    fields_to_check = {"username": user.username, "email": user.email}
 
-    db_user = get_user(db, username=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    for field, value in fields_to_check.items():
+        db_user = get_user(db, **{field: value})
+        if db_user:
+            raise HTTPException(status_code=400, detail=f"{field.capitalize()} already registered")
 
     new_user = create_user(db, user)
     return {"message": "User registered successfully", "user_id": new_user.id}

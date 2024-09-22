@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from starlette.testclient import TestClient
 from app.authorization import auth_router
+from app.security import get_current_user
 from models import models
 from models.database import engine
 from models.message import Message
@@ -17,19 +18,19 @@ def home():
     return {"hello": "world"}
 
 @app.post("/chat/{chat_id}")
-def send_message(chat_id: int, message: Message):
+def send_message(chat_id: int, message: Message, user: str = Depends(get_current_user)):
     pass
 
 @app.get("/chat/{chat_id}")
-def get_messages(chat_id: int):
+def get_messages(chat_id: int, user: str = Depends(get_current_user)):
     pass
 
 @app.get("/contacts")
-def get_contacts():
+def get_contacts(user: str = Depends(get_current_user)):
     pass
 
 @app.post("/chat")
-def create_chat():
+def create_chat(user: str = Depends(get_current_user)):
     pass
 
 if __name__ == '__main__':

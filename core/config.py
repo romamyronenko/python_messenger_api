@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from pydantic_settings import BaseSettings
 
 
@@ -8,9 +10,9 @@ class Config(BaseSettings):
         env_file = ".env"
 
 class Settings(BaseSettings):
-    SECRET_KEY = "your_secret_key"
-    ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    SECRET_KEY: ClassVar[str] = "your_secret_key"
+    ALGORITHM: ClassVar[str] = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: ClassVar[int] = 30
 
 
 config = Config()

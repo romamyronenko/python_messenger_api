@@ -21,8 +21,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def verify_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+def verify_password(plain_password: str, hashed_password: bytes) -> bool:
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def get_password_hash(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -35,18 +35,19 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
     return encoded_jwt
 
 def create_user(db: Session, user: UserCreate):
+    hashed_password: bytes = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
     db_user = models.UserDB(
         username=user.username,
         email=user.email,
         full_name=user.full_name,
-        hashed_password=get_password_hash(user.password)
+        hashed_password=hashed_password
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
-def get_user(db: Session, username: str):
+def get_user(db: Session, username: str = None, email: str = None):
     return db.query(models.UserDB).filter(models.UserDB.username == username).first()
 
 def get_db():
