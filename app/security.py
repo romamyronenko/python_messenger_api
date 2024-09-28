@@ -1,12 +1,15 @@
+from datetime import datetime, timedelta
+
+import bcrypt
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
 from core.config import config
 from models import models
-from pydantic import BaseModel
-from datetime import datetime, timedelta
-import jwt
-import bcrypt
+
 
 class UserCreate(BaseModel):
     username: str
@@ -14,15 +17,19 @@ class UserCreate(BaseModel):
     password: str
     full_name: str
 
+
 # Конфігурація JWT
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 def verify_password(plain_password: str, hashed_password: bytes) -> bool:
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+
 
 def get_password_hash(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)):
     to_encode = data.copy()
@@ -30,6 +37,7 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
     return encoded_jwt
+
 
 def create_user(db: Session, user: UserCreate):
     hashed_password: bytes = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
@@ -44,8 +52,10 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
+
 def get_user(db: Session, username: str = None, email: str = None):
     return db.query(models.UserDB).filter(models.UserDB.username == username).first()
+
 
 def get_db():
     from models.database import SessionLocal
@@ -54,6 +64,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
@@ -72,4 +83,3 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         raise credentials_exception
     return user
-
