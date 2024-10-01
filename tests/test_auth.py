@@ -12,8 +12,6 @@ def test_register(cleanup_user):
         "password": "testpassword",
         "full_name": "Test User"
     })
-    print(response.status_code)
-    print(response.json())
     assert response.status_code == 200
     assert "user_id" in response.json()
 
