@@ -1,6 +1,3 @@
-import random
-import string
-
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -8,18 +5,14 @@ from app.main import app
 client = TestClient(app)
 
 
-def generate_unique_username():
-    return ''.join(random.choices(string.ascii_lowercase, k=10))
-
-
-def test_register():
-    unique_username = 'testuser'
+def test_register(cleanup_user):
     response = client.post("/auth/register/", json={
-        "username": unique_username,
-        "email": f"{unique_username}@example.com",
+        "username": "testuser",
+        "email": "testemail@example.com",
         "password": "testpassword",
         "full_name": "Test User"
     })
+    print(response.status_code)
     print(response.json())
     assert response.status_code == 200
     assert "user_id" in response.json()
