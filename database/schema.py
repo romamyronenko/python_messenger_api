@@ -18,7 +18,7 @@ Base = declarative_base()
 
 
 class UserDB(Base):
-    tablename = "users"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
@@ -115,3 +115,4 @@ class Files(Base):
     uploaded_at = Column(TIMESTAMP, default=current_timestamp)
 
     message = relationship("Messages", back_populates="files")
+
