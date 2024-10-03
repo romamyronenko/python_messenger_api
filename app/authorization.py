@@ -1,7 +1,9 @@
 from datetime import timedelta
 
 from fastapi import Depends, HTTPException, APIRouter
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.testing.plugin.plugin_base import config
 from starlette import status
 
 import database.schema
@@ -21,31 +23,28 @@ from app.security import (
     get_current_user,
 )
 from core.config import config
+from models import models
 
-auth_router = APIRouter(prefix="/auth", tags=["authentication"])
+auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
 
 @auth_router.post("/register")
-async def register(
-    user: UserCreate, db: Session = Depends(get_db)
-) -> UserCreatedResponse:
+async def register(user: UserCreate, db: Session = Depends(get_db)):
     fields_to_check = {"username": user.username, "email": user.email}
 
     for field, value in fields_to_check.items():
         db_user = get_user(db, **{field: value})
         if db_user:
-            raise HTTPException(
-                status_code=400, detail=f"{field.capitalize()} already registered"
-            )
+            raise HTTPException(status_code=400, detail=f"{field.capitalize()} already registered")
 
     new_user = create_user(db, user)
-    return UserCreatedResponse(message="User registered successfully", id=new_user.id)
+    return UserCreatedResponse(
+        message="User registered successfully", user_id=new_user.id
+    )
 
 
 @auth_router.post("/login")
-async def login(
-    form_data: UserAuthRequest, db: Session = Depends(get_db)
-) -> TokenResponse:
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -57,7 +56,7 @@ async def login(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return TokenResponse(access_token=access_token, token_type="bearer")
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @auth_router.get("/users/me")
