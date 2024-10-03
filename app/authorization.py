@@ -6,8 +6,22 @@ from sqlalchemy.orm import Session
 from sqlalchemy.testing.plugin.plugin_base import config
 from starlette import status
 
-from app.security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, \
-    get_current_user
+import database.schema
+from app.models import (
+    UserCreatedResponse,
+    TokenResponse,
+    UserAuthRequest,
+    CurrentUserResponse,
+)
+from app.security import (
+    UserCreate,
+    get_user,
+    create_user,
+    get_db,
+    verify_password,
+    create_access_token,
+    get_current_user,
+)
 from core.config import config
 from models import models
 
@@ -15,16 +29,22 @@ auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
 
 @auth_router.post("/register")
-async def register(user: UserCreate, db: Session = Depends(get_db)):
+async def register(
+    user: UserCreate, db: Session = Depends(get_db)
+) -> UserCreatedResponse:
     fields_to_check = {"username": user.username, "email": user.email}
 
     for field, value in fields_to_check.items():
         db_user = get_user(db, **{field: value})
         if db_user:
-            raise HTTPException(status_code=400, detail=f"{field.capitalize()} already registered")
+            raise HTTPException(
+                status_code=400, detail=f"{field.capitalize()} already registered"
+            )
 
     new_user = create_user(db, user)
-    return {"message": "User registered successfully", "user_id": new_user.id}
+    return UserCreatedResponse(
+        message="User registered successfully", user_id=new_user.id
+    )
 
 
 @auth_router.post("/login")
@@ -43,7 +63,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@auth_router.get("/users/me")
 async def read_users_me(
     current_user: database.schema.User = Depends(get_current_user),
 ) -> CurrentUserResponse:
