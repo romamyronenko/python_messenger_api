@@ -7,31 +7,33 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+import database
 from core.config import config
-from models import models
 
 
 class UserCreate(BaseModel):
     username: str
-    email: str
     password: str
-    full_name: str
+    email: str = None
+    full_name: str = None
 
 
 # Конфігурація JWT
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def verify_password(plain_password: str, hashed_password: bytes) -> bool:
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password)
 
 
 def get_password_hash(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
 
-def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)):
+def create_access_token(
+    data: dict,
+    expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
+):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
@@ -40,12 +42,14 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
 
 
 def create_user(db: Session, user: UserCreate):
-    hashed_password: bytes = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
-    db_user = models.UserDB(
+    hashed_password: bytes = bcrypt.hashpw(
+        user.password.encode("utf-8"), bcrypt.gensalt()
+    )
+    db_user = database.schema.UserDB(
         username=user.username,
         email=user.email,
         full_name=user.full_name,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
     )
     db.add(db_user)
     db.commit()
@@ -54,11 +58,16 @@ def create_user(db: Session, user: UserCreate):
 
 
 def get_user(db: Session, username: str = None, email: str = None):
-    return db.query(models.UserDB).filter(models.UserDB.username == username).first()
+    return (
+        db.query(database.schema.UserDB)
+        .filter(database.schema.UserDB.username == username)
+        .first()
+    )
 
 
 def get_db():
-    from models.database import SessionLocal
+    from database import SessionLocal
+
     db = SessionLocal()
     try:
         yield db
@@ -66,7 +75,9 @@ def get_db():
         db.close()
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
