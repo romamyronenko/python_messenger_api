@@ -14,8 +14,8 @@ from database import SessionLocal
 
 class UserCreate(BaseModel):
     username: str
-    email: str
     password: str
+    email: str = None
     display_name: str = None
 
 
