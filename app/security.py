@@ -44,7 +44,7 @@ def create_access_token(
 
 def create_user(db: Session, user: UserCreate):
     hashed_password: bytes = bcrypt.hashpw(
-        user.password.encode("utf-8"), bcrypt.gensalt()
+        user.password.encode('utf-8'), bcrypt.gensalt()
     )
     db_user = database.schema.User(
         username=user.username,
