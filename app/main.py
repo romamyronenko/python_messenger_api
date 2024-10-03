@@ -1,8 +1,6 @@
 from fastapi import FastAPI, Depends, WebSocket
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
-
-import database.schema
 from app.authorization import auth_router
 from app.security import get_current_user
 from models import models
@@ -46,16 +44,6 @@ def get_contacts(user: str = Depends(get_current_user)):
 def create_chat(user: str = Depends(get_current_user)):
     pass
 
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     import uvicorn
-
     uvicorn.run("main:app")
