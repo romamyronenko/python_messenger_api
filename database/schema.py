@@ -13,3 +13,5 @@ class UserDB(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
+
+
