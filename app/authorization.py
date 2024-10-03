@@ -3,24 +3,11 @@ from datetime import timedelta
 from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.testing.plugin.plugin_base import config
 from starlette import status
 
-import database.schema
-from app.models import (
-    UserCreatedResponse,
-    TokenResponse,
-    UserAuthRequest,
-    CurrentUserResponse,
-)
-from app.security import (
-    UserCreate,
-    get_user,
-    create_user,
-    get_db,
-    verify_password,
-    create_access_token,
-    get_current_user,
-)
+from app.security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, \
+    get_current_user
 from core.config import config
 from models import models
 
@@ -37,9 +24,7 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail=f"{field.capitalize()} already registered")
 
     new_user = create_user(db, user)
-    return UserCreatedResponse(
-        message="User registered successfully", user_id=new_user.id
-    )
+    return {"message": "User registered successfully", "user_id": new_user.id}
 
 
 @auth_router.post("/login")
@@ -68,3 +53,4 @@ async def read_users_me(
         email=current_user.email,
         display_name=current_user.full_name,
     )
+

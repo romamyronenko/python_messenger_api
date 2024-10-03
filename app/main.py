@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
-
 import database
 from app.authorization import auth_router
 from app.models import MessageSent, MessageGet
@@ -102,8 +101,10 @@ def create_chat(users_ids: UserIds, user: str = Depends(get_current_user), db: S
     db.commit()
     return chat.id
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c7de35b (black formating, update /docs, change auth to json, remove password from /auth/users/me)
 if __name__ == '__main__':
     import uvicorn
-
     uvicorn.run("main:app")
