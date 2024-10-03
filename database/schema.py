@@ -101,4 +101,3 @@ class Contact(Base):
     user = relationship("User", foreign_keys=[user_id])
 
     contact_user = relationship("User", foreign_keys=[contact_user_id])
-

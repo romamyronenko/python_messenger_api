@@ -75,4 +75,3 @@ async def read_users_me(
         email=current_user.email,
         display_name=current_user.full_name
     )
-
