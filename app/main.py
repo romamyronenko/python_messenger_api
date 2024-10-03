@@ -76,6 +76,7 @@ def get_messages(
 def get_contacts(user: str = Depends(get_current_user)):
     pass
 
+
 @app.post("/chat")
 def create_chat(user: str = Depends(get_current_user)):
     pass
