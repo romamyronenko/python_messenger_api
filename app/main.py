@@ -79,6 +79,16 @@ def get_contacts(user: str = Depends(get_current_user)):
 def create_chat(user: str = Depends(get_current_user)):
     pass
 
-if __name__ == '__main__':
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
+
+
+if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("main:app")
