@@ -4,7 +4,6 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
-
 import database
 from ai_tools.ai_translate import translate
 from app.authorization import auth_router

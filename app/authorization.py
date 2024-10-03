@@ -3,6 +3,7 @@ from datetime import timedelta
 from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.testing.plugin.plugin_base import config
 from starlette import status
 
 from app.security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, \
