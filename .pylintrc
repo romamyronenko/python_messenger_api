@@ -1,0 +1,11 @@
+[MASTER]
+disable=
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    W0613, # Unused argument
+    E0401, # Unable to import
+    R0903, # Too few public methods
+    W0718, # Catching too general exception Exception
+    W0707, # Consider explicitly re-raising using 'except Exception as exc' and 'raise credentials_exception from exc' (raise-missing-from)
+    R1708, # Do not raise StopIteration in generator, use return statement instead (stop-iteration-return)
