@@ -22,7 +22,7 @@ jobs:
           pylint . --ignore=".venv"
 
   pytest:
-    needs: [black]
+    needs: [black, pylint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
