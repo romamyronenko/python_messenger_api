@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 import database
 from core.config import config
+from database import SessionLocal
 
 
 class UserCreate(BaseModel):
@@ -66,8 +67,6 @@ def get_user(db: Session, username: str = None, email: str = None):
 
 
 def get_db():
-    from database import SessionLocal
-
     db = SessionLocal()
     try:
         yield db
