@@ -3,10 +3,26 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
-
+  black:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rickstaa/action-black@v1
+        with:
+          black_args: ". --check"
 
+  pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python Pylin GitHub Action
+        uses: fylein/python-pylint-github-action@v1
+        with:
+          args: pip3 install -r requirements-dev.txt && pylint . --ignore=".venv"
+
+  pytest:
+    needs: [black]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.12
