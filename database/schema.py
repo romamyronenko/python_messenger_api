@@ -15,4 +15,3 @@ class UserDB(Base):
     disabled = Column(Boolean, default=False)
 
 
-
