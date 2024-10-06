@@ -1,6 +1,3 @@
-from operator import index
-from sqlite3.dbapi2 import Timestamp
-from xmlrpc.client import boolean
 
 from fastapi.openapi.models import Reference
 from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey
