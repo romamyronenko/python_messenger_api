@@ -11,8 +11,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql.functions import current_timestamp
 
 Base = declarative_base()
 
@@ -115,5 +113,53 @@ class Files(Base):
     uploaded_at = Column(TIMESTAMP, default=current_timestamp)
 
     message = relationship("Messages", back_populates="files")
+    created_at = Column(TIMESTAMP, default=current_timestamp)
+    updated_at = Column(TIMESTAMP, default=current_timestamp, onupdate=current_timestamp)
+    last_login = Column(TIMESTAMP, nullable=False)
+
+    messages = relationship("Messages", back_populates="user")
+
+
+class Messages(Base):
+    __tablename__ = "messages"
+
+    message_id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.conversation_id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    message_text = Column(String, nullable=False)
+    sent_at = Column(TIMESTAMP, default=current_timestamp)
+
+    user = relationship("UserDB", back_populates="messages")
+    conversation = relationship("Conversations", back_populates="messages")
+    files = relationship("Files", back_populates="message")
+
+
+class Conversations(Base):
+    __tablename__ = "conversations"
+
+    conversation_id = Column(Integer, primary_key=True, index=True)
+    is_group = Column(Boolean, default=False)
+    created_at = Column(TIMESTAMP, default=current_timestamp)
+
+    messages = relationship("Messages", back_populates="conversation")
+
+
+class ConversationParticipants(Base):
+    __tablename__ = "conversation_participants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.conversation_id"), nullable=False)  # Групова розмова
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    joined_at = Column(TIMESTAMP, default=current_timestamp)
+
+    conversation = relationship("Conversations")
+    user = relationship("UserDB")
+
+
+class Role(Base):
+    __tablename__ = "roles"
+
+    role_id = Column(Integer, primary_key=True, index=True)
+    role_name = Column(VARCHAR(50), unique=True, nullable=False)
 
 
