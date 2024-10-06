@@ -1,11 +1,19 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from operator import index
+from sqlite3.dbapi2 import Timestamp
+from xmlrpc.client import boolean
+
+from fastapi.openapi.models import Reference
+from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey
+from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql.functions import current_timestamp
 
 Base = declarative_base()
 
 
 class UserDB(Base):
-    __tablename__ = "users"
+    tablename = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
@@ -21,7 +29,7 @@ class UserDB(Base):
 
 
 class Messages(Base):
-    __tablename__ = "messages"
+    tablename = "messages"
 
     message_id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.conversation_id"), nullable=False)
@@ -35,7 +43,7 @@ class Messages(Base):
 
 
 class Conversations(Base):
-    __tablename__ = "conversations"
+    tablename = "conversations"
 
     conversation_id = Column(Integer, primary_key=True, index=True)
     is_group = Column(Boolean, default=False)
@@ -45,7 +53,7 @@ class Conversations(Base):
 
 
 class ConversationParticipants(Base):
-    __tablename__ = "conversation_participants"
+    tablename = "conversation_participants"
 
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.conversation_id"), nullable=False)  # Групова розмова
@@ -57,14 +65,14 @@ class ConversationParticipants(Base):
 
 
 class Role(Base):
-    __tablename__ = "roles"
+    tablename = "roles"
 
     role_id = Column(Integer, primary_key=True, index=True)
     role_name = Column(VARCHAR(50), unique=True, nullable=False)
 
 
 class UserRole(Base):
-    __tablename__ = "user_roles"
+    tablename = "user_roles"
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     role_id = Column(Integer, ForeignKey("roles.role_id"), primary_key=True)
@@ -75,7 +83,7 @@ class UserRole(Base):
 
 
 class Contacts(Base):
-    __tablename__ = "contacts"
+    tablename = "contacts"
 
     contact_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -87,7 +95,7 @@ class Contacts(Base):
 
 
 class Files(Base):
-    __tablename__ = "files"
+    tablename = "files"
 
     file_id = Column(Integer, primary_key=True, index=True)
     message_id = Column(Integer, ForeignKey("messages.message_id"), nullable=False)
