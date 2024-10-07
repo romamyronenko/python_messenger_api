@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     TIMESTAMP,
     ForeignKey,
+    DateTime,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
