@@ -26,11 +26,12 @@ class UserDB(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
-    created_at = Column(TIMESTAMP, default=current_timestamp)
-    updated_at = Column(TIMESTAMP, default=current_timestamp, onupdate=current_timestamp)
-    last_login = Column(TIMESTAMP, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(TIMESTAMP)
 
     messages = relationship("Messages", back_populates="user")
+    roles = relationship("UserRole", back_populates="user")
 
 
 class Messages(Base):
@@ -79,13 +80,15 @@ class Role(Base):
     role_id = Column(Integer, primary_key=True, index=True)
     role_name = Column(VARCHAR(50), unique=True, nullable=False)
 
+    users = relationship("UserRole", back_populates="role")
+
 
 class UserRole(Base):
     __tablename__ = "user_roles"
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     role_id = Column(Integer, ForeignKey("roles.role_id"), primary_key=True)
-    assigned_at = Column(TIMESTAMP, default=current_timestamp)
+    assigned_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     user = relationship("UserDB", back_populates="roles")
     role = relationship("Role", back_populates="users")
