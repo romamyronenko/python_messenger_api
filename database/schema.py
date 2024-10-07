@@ -65,7 +65,7 @@ class ConversationParticipants(Base):
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
         Integer, ForeignKey("conversations.conversation_id"), nullable=False
-    )  # Групова розмова
+    )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
 
