@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     TIMESTAMP,
     ForeignKey,
+    DateTime,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
@@ -25,6 +26,8 @@ class User(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(TIMESTAMP)
 
     messages = relationship("Message", back_populates="user")
