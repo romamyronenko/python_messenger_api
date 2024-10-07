@@ -1,4 +1,3 @@
-
 from fastapi.openapi.models import Reference
 from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey
 from sqlalchemy.dialects.mysql import VARCHAR
@@ -19,7 +18,9 @@ class UserDB(Base):
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, default=current_timestamp)
-    updated_at = Column(TIMESTAMP, default=current_timestamp, onupdate=current_timestamp)
+    updated_at = Column(
+        TIMESTAMP, default=current_timestamp, onupdate=current_timestamp
+    )
     last_login = Column(TIMESTAMP, nullable=False)
 
     messages = relationship("Messages", back_populates="user")
@@ -29,7 +30,9 @@ class Messages(Base):
     tablename = "messages"
 
     message_id = Column(Integer, primary_key=True, index=True)
-    conversation_id = Column(Integer, ForeignKey("conversations.conversation_id"), nullable=False)
+    conversation_id = Column(
+        Integer, ForeignKey("conversations.conversation_id"), nullable=False
+    )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     message_text = Column(String, nullable=False)
     sent_at = Column(TIMESTAMP, default=current_timestamp)
@@ -53,7 +56,9 @@ class ConversationParticipants(Base):
     tablename = "conversation_participants"
 
     id = Column(Integer, primary_key=True, index=True)
-    conversation_id = Column(Integer, ForeignKey("conversations.conversation_id"), nullable=False)  # Групова розмова
+    conversation_id = Column(
+        Integer, ForeignKey("conversations.conversation_id"), nullable=False
+    )  # Групова розмова
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
 
