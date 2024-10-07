@@ -1,4 +1,3 @@
-from fastapi.openapi.models import Reference
 from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
