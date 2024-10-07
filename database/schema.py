@@ -8,7 +8,7 @@ Base = declarative_base()
 
 
 class UserDB(Base):
-    tablename = "users"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
@@ -26,7 +26,7 @@ class UserDB(Base):
 
 
 class Messages(Base):
-    tablename = "messages"
+    __tablename__ = "messages"
 
     message_id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
@@ -42,7 +42,7 @@ class Messages(Base):
 
 
 class Conversations(Base):
-    tablename = "conversations"
+    __tablename__ = "conversations"
 
     conversation_id = Column(Integer, primary_key=True, index=True)
     is_group = Column(Boolean, default=False)
@@ -52,12 +52,12 @@ class Conversations(Base):
 
 
 class ConversationParticipants(Base):
-    tablename = "conversation_participants"
+    __tablename__ = "conversation_participants"
 
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
         Integer, ForeignKey("conversations.conversation_id"), nullable=False
-    )  # Групова розмова
+    )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
 
@@ -66,14 +66,14 @@ class ConversationParticipants(Base):
 
 
 class Role(Base):
-    tablename = "roles"
+    __tablename__ = "roles"
 
     role_id = Column(Integer, primary_key=True, index=True)
     role_name = Column(VARCHAR(50), unique=True, nullable=False)
 
 
 class UserRole(Base):
-    tablename = "user_roles"
+    __tablename__ = "user_roles"
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     role_id = Column(Integer, ForeignKey("roles.role_id"), primary_key=True)
@@ -84,7 +84,7 @@ class UserRole(Base):
 
 
 class Contacts(Base):
-    tablename = "contacts"
+    __tablename__ = "contacts"
 
     contact_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -96,7 +96,7 @@ class Contacts(Base):
 
 
 class Files(Base):
-    tablename = "files"
+    __tablename__ = "files"
 
     file_id = Column(Integer, primary_key=True, index=True)
     message_id = Column(Integer, ForeignKey("messages.message_id"), nullable=False)
