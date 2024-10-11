@@ -103,16 +103,5 @@ class Contacts(Base):
     added_at = Column(TIMESTAMP, default=current_timestamp)
 
     user = relationship("UserDB", foreign_keys=[user_id])
+
     contact_user = relationship("UserDB", foreign_keys=[contact_user_id])
-
-
-class Files(Base):
-    __tablename__ = "files"
-
-    file_id = Column(Integer, primary_key=True, index=True)
-    message_id = Column(Integer, ForeignKey("messages.message_id"), nullable=False)
-    file_url = Column(String, nullable=False)
-    file_type = Column(String, nullable=False)
-    uploaded_at = Column(TIMESTAMP, default=current_timestamp)
-
-    message = relationship("Messages", back_populates="files")
