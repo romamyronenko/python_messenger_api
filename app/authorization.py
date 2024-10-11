@@ -9,8 +9,6 @@ from starlette import status
 import database.schema
 from app.models import (
     UserCreatedResponse,
-    TokenResponse,
-    UserAuthRequest,
     CurrentUserResponse,
 )
 from app.security import (
@@ -23,7 +21,7 @@ from app.security import (
     get_current_user,
 )
 from core.config import config
-from models import models
+
 
 auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
@@ -70,6 +68,5 @@ async def read_users_me(
         id=current_user.id,
         username=current_user.username,
         email=current_user.email,
-        display_name=current_user.full_name,
+        display_name=current_user.full_name
     )
-
