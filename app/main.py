@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, WebSocket
+from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
 
 import database.schema
@@ -13,6 +14,15 @@ app = FastAPI()
 
 app.include_router(auth_router)
 client = TestClient(app)
+
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
