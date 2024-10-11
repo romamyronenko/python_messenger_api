@@ -10,7 +10,7 @@ def create_db_user():
         username="testuser",
         email="testemail@example.com",
         password="testpassword",
-        full_name="Test User",
+        display_name="Test User",
     )
     db_user = create_user(db, user)
 
