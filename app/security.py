@@ -16,7 +16,7 @@ class UserCreate(BaseModel):
     username: str
     password: str
     email: str = None
-    full_name: str = None
+    display_name: str = None
 
 
 # Конфігурація JWT
@@ -49,7 +49,7 @@ def create_user(db: Session, user: UserCreate):
     db_user = database.schema.UserDB(
         username=user.username,
         email=user.email,
-        full_name=user.full_name,
+        full_name=user.display_name,
         hashed_password=hashed_password,
     )
     db.add(db_user)
