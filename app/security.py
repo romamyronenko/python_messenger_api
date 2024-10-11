@@ -67,8 +67,6 @@ def get_user(db: Session, username: str = None, email: str = None):
 
 
 def get_db():
-    from database import SessionLocal
-
     db = SessionLocal()
     try:
         yield db
