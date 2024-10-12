@@ -39,9 +39,7 @@ async def register(
             )
 
     new_user = create_user(db, user)
-    return UserCreatedResponse(
-        message="User registered successfully", id=new_user.id
-    )
+    return UserCreatedResponse(message="User registered successfully", id=new_user.id)
 
 
 @auth_router.post("/login")
