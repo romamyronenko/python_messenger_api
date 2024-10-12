@@ -1,13 +1,15 @@
 from datetime import timedelta
 
 from fastapi import Depends, HTTPException, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.testing.plugin.plugin_base import config
 from starlette import status
 
 import database.schema
 from app.models import (
     UserCreatedResponse,
+    TokenResponse,
+    UserAuthRequest,
     CurrentUserResponse,
 )
 from app.security import (
@@ -22,7 +24,7 @@ from app.security import (
 from core.config import config
 
 
-auth_router = APIRouter(prefix='/auth', tags=['authentication'])
+auth_router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
 @auth_router.post("/register")
@@ -45,7 +47,9 @@ async def register(
 
 
 @auth_router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(
+    form_data: UserAuthRequest, db: Session = Depends(get_db)
+) -> TokenResponse:
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -57,9 +61,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return TokenResponse(access_token=access_token, token_type="bearer")
 
 
+@auth_router.get("/users/me")
 async def read_users_me(
     current_user: database.schema.UserDB = Depends(get_current_user),
 ) -> CurrentUserResponse:
@@ -67,5 +72,5 @@ async def read_users_me(
         id=current_user.id,
         username=current_user.username,
         email=current_user.email,
-        display_name=current_user.full_name
+        display_name=current_user.full_name,
     )
