@@ -49,7 +49,7 @@ async def register(
 
 @auth_router.post("/login")
 async def login(
-        form_data: UserAuthRequest, db: Session = Depends(get_db)
+    form_data: UserAuthRequest, db: Session = Depends(get_db)
 ) -> TokenResponse:
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
