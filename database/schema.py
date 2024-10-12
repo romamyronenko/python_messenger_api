@@ -7,7 +7,6 @@ from sqlalchemy import (
     Boolean,
     TIMESTAMP,
     ForeignKey,
-    DateTime,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
@@ -17,7 +16,7 @@ from sqlalchemy.sql.functions import current_timestamp
 Base = declarative_base()
 
 
-class UserDB(Base):
+class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -26,58 +25,55 @@ class UserDB(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(TIMESTAMP)
 
-    messages = relationship("Messages", back_populates="user")
+    messages = relationship("Message", back_populates="user")
     roles = relationship("UserRole", back_populates="user")
 
 
-class Messages(Base):
+class Message(Base):
     __tablename__ = "messages"
 
-    message_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
-        Integer, ForeignKey("conversations.conversation_id"), nullable=False
+        Integer, ForeignKey("conversations.id"), nullable=False
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     message_text = Column(String, nullable=False)
     sent_at = Column(TIMESTAMP, default=current_timestamp)
 
-    user = relationship("UserDB", back_populates="messages")
-    conversation = relationship("Conversations", back_populates="messages")
-    files = relationship("Files", back_populates="message")
+    user = relationship("User", back_populates="messages")
+    conversation = relationship("Conversation", back_populates="messages")
 
 
-class Conversations(Base):
+class Conversation(Base):
     __tablename__ = "conversations"
 
-    conversation_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     is_group = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, default=current_timestamp)
 
-    messages = relationship("Messages", back_populates="conversation")
+    messages = relationship("Message", back_populates="conversation")
 
 
-class ConversationParticipants(Base):
+class ConversationParticipant(Base):
     __tablename__ = "conversation_participants"
 
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
-        Integer, ForeignKey("conversations.conversation_id"), nullable=False
+        Integer, ForeignKey("conversations.id"), nullable=False
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
 
-    conversation = relationship("Conversations")
-    user = relationship("UserDB")
+    conversation = relationship("Conversation")
+    user = relationship("User")
 
 
 class Role(Base):
     __tablename__ = "roles"
 
-    role_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     role_name = Column(VARCHAR(50), unique=True, nullable=False)
 
     users = relationship("UserRole", back_populates="role")
@@ -86,18 +82,19 @@ class Role(Base):
 class UserRole(Base):
     __tablename__ = "user_roles"
 
-    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    role_id = Column(Integer, ForeignKey("roles.role_id"), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    role_id = Column(Integer, ForeignKey("roles.id"))
     assigned_at = Column(TIMESTAMP, default=datetime.utcnow)
 
-    user = relationship("UserDB", back_populates="roles")
+    user = relationship("User", back_populates="roles")
     role = relationship("Role", back_populates="users")
 
 
-class Contacts(Base):
+class Contact(Base):
     __tablename__ = "contacts"
 
-    contact_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     contact_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     added_at = Column(TIMESTAMP, default=current_timestamp)

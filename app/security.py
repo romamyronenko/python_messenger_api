@@ -46,7 +46,7 @@ def create_user(db: Session, user: UserCreate):
     hashed_password: bytes = bcrypt.hashpw(
         user.password.encode("utf-8"), bcrypt.gensalt()
     )
-    db_user = database.schema.UserDB(
+    db_user = database.schema.User(
         username=user.username,
         email=user.email,
         full_name=user.display_name,
@@ -60,8 +60,8 @@ def create_user(db: Session, user: UserCreate):
 
 def get_user(db: Session, username: str = None, email: str = None):
     return (
-        db.query(database.schema.UserDB)
-        .filter(database.schema.UserDB.username == username)
+        db.query(database.schema.User)
+        .filter(database.schema.User.username == username)
         .first()
     )
 
