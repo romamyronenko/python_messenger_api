@@ -39,9 +39,7 @@ async def register(
             )
 
     new_user = create_user(db, user)
-    return UserCreatedResponse(
-        message="User registered successfully", user_id=new_user.id
-    )
+    return UserCreatedResponse(message="User registered successfully", id=new_user.id)
 
 
 @auth_router.post("/login")
@@ -64,7 +62,7 @@ async def login(
 
 @auth_router.get("/users/me")
 async def read_users_me(
-    current_user: database.schema.UserDB = Depends(get_current_user),
+    current_user: database.schema.User = Depends(get_current_user),
 ) -> CurrentUserResponse:
     return CurrentUserResponse(
         id=current_user.id,

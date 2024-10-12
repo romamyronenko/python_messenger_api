@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class UserCreatedResponse(BaseModel):
     message: str
-    user_id: int
+    id: int
 
 
 class TokenResponse(BaseModel):
