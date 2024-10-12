@@ -40,7 +40,7 @@ async def register(
 
     new_user = create_user(db, user)
     return UserCreatedResponse(
-        message="User registered successfully", user_id=new_user.id
+        message="User registered successfully", id=new_user.id
     )
 
 

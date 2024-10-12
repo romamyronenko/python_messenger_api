@@ -16,7 +16,7 @@ def test_register(cleanup_user):
         },
     )
     assert response.status_code == 200
-    assert "user_id" in response.json()
+    assert "id" in response.json()
 
 
 def test_login_success(create_db_user):

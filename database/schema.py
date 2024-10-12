@@ -95,6 +95,6 @@ class Contact(Base):
     contact_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     added_at = Column(TIMESTAMP, default=current_timestamp)
 
-    user = relationship("UserDB", foreign_keys=[user_id])
+    user = relationship("User", foreign_keys=[user_id])
 
-    contact_user = relationship("UserDB", foreign_keys=[contact_user_id])
+    contact_user = relationship("User", foreign_keys=[contact_user_id])
