@@ -9,6 +9,8 @@ from starlette import status
 import database.schema
 from app.models import (
     UserCreatedResponse,
+    TokenResponse,
+    UserAuthRequest,
     CurrentUserResponse,
 )
 from app.security import (
@@ -46,7 +48,9 @@ async def register(
 
 
 @auth_router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(
+        form_data: UserAuthRequest, db: Session = Depends(get_db)
+) -> TokenResponse:
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -61,6 +65,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@auth_router.get("/users/me")
 async def read_users_me(
     current_user: database.schema.User = Depends(get_current_user),
 ) -> CurrentUserResponse:

@@ -26,8 +26,6 @@ class User(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(TIMESTAMP)
 
     messages = relationship("Message", back_populates="user")
@@ -37,9 +35,9 @@ class User(Base):
 class Message(Base):
     __tablename__ = "messages"
 
-    message_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
-        Integer, ForeignKey("conversations.conversation_id"), nullable=False
+        Integer, ForeignKey("conversations.id"), nullable=False
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     message_text = Column(String, nullable=False)
@@ -63,7 +61,9 @@ class ConversationParticipant(Base):
     __tablename__ = "conversation_participants"
 
     id = Column(Integer, primary_key=True, index=True)
-    conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
+    conversation_id = Column(
+        Integer, ForeignKey("conversations.id"), nullable=False
+    )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
 
