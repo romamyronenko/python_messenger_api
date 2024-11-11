@@ -61,15 +61,15 @@ def send_message(
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
 def get_messages(chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    message = db.query(Message).filter(Message.conversation_id == chat_id).all()
+    messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
-    if not message:
+    if not messages:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f'No messages found for chat_id: {chat_id}'
         )
 
-    return message
+    return messages
 
 
 @app.get("/contacts")
