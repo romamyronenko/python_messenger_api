@@ -5,9 +5,10 @@ from starlette.testclient import TestClient
 
 import database.schema
 from app.authorization import auth_router
-from app.models import Message
+from app.models import MessageSent
 from app.security import get_current_user, get_db
 from database import engine
+from database.schema import Message
 
 database.schema.Base.metadata.create_all(bind=engine)
 
@@ -31,17 +32,17 @@ def home():
     return {"hello": "world"}
 
 
-@app.post("/chat/{chat_id}/message", response_model=Message)
+@app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
         chat_id: int,
-        message: Message,
+        message: MessageSent,
         user: str = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
     db_message = Message(
         conversation_id=chat_id,
-        message_text=message,
-        user_id=user
+        message_text=message.message_text,
+        user_id=user.id
     )
     db.add(db_message)
 
@@ -56,9 +57,17 @@ def send_message(
         )
 
 
-@app.get("/chat/{chat_id}")
-def get_messages(chat_id: int, user: str = Depends(get_current_user)):
-    pass
+# @app.get("/chat/{chat_id}/message", response_model=List[Message])
+# def get_messages(chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+#     message = db.query(Message).filter(Message.conversation_id == chat_id)
+#
+#     if not message:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail=f'No messages found for chat_id: {chat_id}'
+#         )
+#
+#     return message
 
 
 @app.get("/contacts")
