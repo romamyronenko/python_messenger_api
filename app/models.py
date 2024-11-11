@@ -31,6 +31,10 @@ class MessageSent(BaseModel):
     message_text: str
     user_id: int
 
+class MessageGet(BaseModel):
+    conversation_id: int
+    message_text: str
+
     class Config:
         orm_mode = True
 

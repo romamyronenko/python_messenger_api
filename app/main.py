@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI, Depends, WebSocket, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
@@ -5,7 +7,7 @@ from starlette.testclient import TestClient
 
 import database.schema
 from app.authorization import auth_router
-from app.models import MessageSent
+from app.models import MessageSent, MessageGet
 from app.security import get_current_user, get_db
 from database import engine
 from database.schema import Message
@@ -57,17 +59,17 @@ def send_message(
         )
 
 
-# @app.get("/chat/{chat_id}/message", response_model=List[Message])
-# def get_messages(chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-#     message = db.query(Message).filter(Message.conversation_id == chat_id)
-#
-#     if not message:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail=f'No messages found for chat_id: {chat_id}'
-#         )
-#
-#     return message
+@app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
+def get_messages(chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    message = db.query(Message).filter(Message.conversation_id == chat_id).all()
+
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'No messages found for chat_id: {chat_id}'
+        )
+
+    return message
 
 
 @app.get("/contacts")
