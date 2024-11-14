@@ -39,15 +39,9 @@ def create_db_user_msg():
     yield db_user
 
 
-@pytest.fixture()
-def cleanup_user():
-    yield
-
-    db = next(get_db())
-    user = get_user(db, username="testuser")
-    if user:
-        db.delete(user)
-        db.commit()
+"""
+Refactor the fixtures to avoid code duplication
+"""
 
 
 @pytest.fixture()
