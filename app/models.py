@@ -26,10 +26,12 @@ class Message(BaseModel):
     content: Optional[str] = None
     sent_at: Optional[datetime] = None
 
+
 class MessageSent(BaseModel):
     conversation_id: int
     message_text: str
     user_id: int
+
 
 class MessageGet(BaseModel):
     conversation_id: int
@@ -37,6 +39,7 @@ class MessageGet(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class CurrentUserResponse(BaseModel):
     id: int
