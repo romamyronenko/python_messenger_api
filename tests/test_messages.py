@@ -13,13 +13,13 @@ def test_send_message(cleanup_db, create_db_user_msg, login_test_user):
     message_data = {
         "conversation_id": chat_id,
         "message_text": "Hello, this is a test message",
-        "user_id": create_db_user_msg.id
+        "user_id": create_db_user_msg.id,
     }
 
     response = client.post(
         f"/chat/{chat_id}/message",
         json=message_data,
-        headers={"Authorization": f"Bearer {login_test_user}"}
+        headers={"Authorization": f"Bearer {login_test_user}"},
     )
 
     print("Response status:", response.status_code)
@@ -45,7 +45,7 @@ def test_get_message(cleanup_db, create_db_user_msg, login_test_user):
     message = Message(
         conversation_id=chat_id,
         message_text="Hello, this is a test message",
-        user_id=create_db_user_msg.id
+        user_id=create_db_user_msg.id,
     )
     db.add(message)
     db.commit()
@@ -53,7 +53,7 @@ def test_get_message(cleanup_db, create_db_user_msg, login_test_user):
 
     response = client.get(
         f"/chat/{chat_id}/message",
-        headers={"Authorization": f"Bearer {login_test_user}"}
+        headers={"Authorization": f"Bearer {login_test_user}"},
     )
 
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
@@ -64,4 +64,6 @@ def test_get_message(cleanup_db, create_db_user_msg, login_test_user):
 
     retrieved_message = response_data[0]
     assert retrieved_message["conversation_id"] == chat_id, "Incorrect conversation_id"
-    assert retrieved_message["message_text"] == "Hello, this is a test message", "Incorrect message_text"
+    assert (
+        retrieved_message["message_text"] == "Hello, this is a test message"
+    ), "Incorrect message_text"
