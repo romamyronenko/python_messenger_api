@@ -6,9 +6,7 @@ from app.security import create_user, UserCreate, get_db, get_user
 from database.schema import User, Message
 
 
-@pytest.fixture()
-def create_db_user():
-    db: Session = next(get_db())
+def create_test_user(db: Session):
     user_data = UserCreate(
         username="testuser",
         email="testemail@example.com",
@@ -17,24 +15,22 @@ def create_db_user():
     )
     db_user = create_user(db, user_data)
     db.commit()
+    return db_user
+
+@pytest.fixture()
+def create_db_user():
+    db: Session = next(get_db())
+    db_user = create_test_user(db)
 
     yield db_user
 
     db.delete(db_user)
     db.commit()
 
-
 @pytest.fixture()
 def create_db_user_msg():
     db: Session = next(get_db())
-    user_data = UserCreate(
-        username="testuser",
-        email="testemail@example.com",
-        password="testpassword",
-        display_name="Test User",
-    )
-    db_user = create_user(db, user_data)
-    db.commit()
+    db_user = create_test_user(db)
 
     yield db_user
 
