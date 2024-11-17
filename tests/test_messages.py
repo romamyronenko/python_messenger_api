@@ -1,8 +1,9 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from database.schema import Message
 from app.security import get_db
+from database.schema import Message
+
 
 client = TestClient(app)
 
@@ -65,5 +66,5 @@ def test_get_message(cleanup_db, create_db_user_msg, login_test_user):
     retrieved_message = response_data[0]
     assert retrieved_message["conversation_id"] == chat_id, "Incorrect conversation_id"
     assert (
-        retrieved_message["message_text"] == "Hello, this is a test message"
+            retrieved_message["message_text"] == "Hello, this is a test message"
     ), "Incorrect message_text"

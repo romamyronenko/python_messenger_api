@@ -38,7 +38,7 @@ def create_db_user_msg():
 
 
 @pytest.fixture()
-def login_test_user(create_db_user_msg):
+def login_test_user():
     response = client.post(
         "/auth/login/", json={"username": "testuser", "password": "testpassword"}
     )
