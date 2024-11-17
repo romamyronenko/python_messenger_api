@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app.main import client
-from app.security import create_user, UserCreate, get_db, get_user
+from app.security import create_user, UserCreate, get_db
 from database.schema import User, Message
 
 
@@ -17,6 +17,7 @@ def create_test_user(db: Session):
     db.commit()
     return db_user
 
+
 @pytest.fixture()
 def create_db_user():
     db: Session = next(get_db())
@@ -27,17 +28,13 @@ def create_db_user():
     db.delete(db_user)
     db.commit()
 
+
 @pytest.fixture()
 def create_db_user_msg():
     db: Session = next(get_db())
     db_user = create_test_user(db)
 
     yield db_user
-
-
-"""
-Refactor the fixtures to avoid code duplication
-"""
 
 
 @pytest.fixture()
@@ -51,6 +48,10 @@ def login_test_user(create_db_user_msg):
 @pytest.fixture(scope="function", autouse=True)
 def cleanup_db():
     db: Session = next(get_db())
-    db.query(Message).delete()
-    db.query(User).delete()
-    db.commit()
+    try:
+        yield
+    finally:
+        db.query(Message).delete()
+        db.query(User).delete()
+        db.commit()
+        db.close()
