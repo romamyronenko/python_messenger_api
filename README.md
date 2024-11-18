@@ -27,24 +27,36 @@ FastAPI Messenger is a real-time messaging platform designed for seamless commun
 
 1. Clone the repository:
 
+```bash
 git clone https://github.com/romamyronenko/python_messenger_api.git    
-cd fastapi-messenger      
+cd fastapi-messenger
+```
+     
 
 2. Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
+
          
 3. Set up the environment variables: Create a .env file in the root directory and include:
 
+```env
 APP_VERSION=0.0.1  
 SECRET_KEY=your_secret_key   
 ALGORITHM=HS256  
 ACCESS_TOKEN_EXPIRE_MINUTES=30  
 DATABASE_URL=your_postgresql_database_url
+```
+
          
 4. Run the application:
 
+```bash
 uvicorn app.main:app --reload
+```
+
          
 5. Access the API documentation: Open http://127.0.0.1:8000/docs in your browser.
 
@@ -63,7 +75,7 @@ uvicorn app.main:app --reload
 
 ### Contacts and Chats
 
-**Get Contacts**: GET /contacts
+**Get Contacts**: GET /contacts  
 **Create Chat**: POST /chat
 
 ## Database
@@ -76,37 +88,49 @@ The application implements JWT-based authentication. Upon successful login, user
 
 Example:
 
-Authorization: Bearer <access_token>  
+```http
+Authorization: Bearer <access_token> 
+```
+ 
 
 ## Testing
 
 The application uses pytest for automated testing. To run the tests, use:
 
-pytest  
+```bash
+pytest
+```
+  
 
 The tests cover:
 
-User registration and login
-JWT token generation and validation
+- User registration and login  
+JWT token generation and validation  
 Messaging functionalities
 
 ## Environment Variables
 
 The application uses environment variables for configuration. Below is an example of the .env file:
 
+```env
 APP_VERSION=0.0.1  
 SECRET_KEY=your_secret_key  
 ALGORITHM=HS256  
 ACCESS_TOKEN_EXPIRE_MINUTES=30  
 DATABASE_URL=your_postgresql_database_url  
+```
+
 
 ## Project Structure
 
+```plaintext
 /.github         # CI/CD configuration files  
 /app             # FastAPI application code  
 /core            # Core utilities and settings  
 /database        # Database models and migrations  
-/tests           # Test suite for the application  
+/tests           # Test suite for the application 
+```
+ 
 
 ## Contact
 
