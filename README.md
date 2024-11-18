@@ -27,11 +27,13 @@ FastAPI Messenger is a real-time messaging platform designed for seamless commun
 
 1. Clone the repository:
 
-git clone https://github.com/your-repo/fastapi-messenger.git
-cd fastapi-messenger
+git clone https://github.com/romamyronenko/python_messenger_api.git
+cd fastapi-messenger      
+
 2. Install dependencies:
 
 pip install -r requirements.txt
+         
 3. Set up the environment variables: Create a .env file in the root directory and include:
 
 APP_VERSION=0.0.1  
@@ -39,9 +41,11 @@ SECRET_KEY=your_secret_key
 ALGORITHM=HS256  
 ACCESS_TOKEN_EXPIRE_MINUTES=30  
 DATABASE_URL=your_postgresql_database_url
+         
 4. Run the application:
 
 uvicorn app.main:app --reload
+         
 5. Access the API documentation: Open http://127.0.0.1:8000/docs in your browser.
 
 ## API Endpoints
