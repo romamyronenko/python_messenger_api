@@ -4,24 +4,24 @@ FastAPI Messenger is a real-time messaging platform designed for seamless commun
 
 ## Features
 
-**Real-time Messaging**: Instant communication between users.  
-**AI-Powered Translation**: Chat with people speaking different languages effortlessly.  
-**Secure Authentication**: Token-based authentication using JWT.  
-**Chat Management**: Create chats, send messages, and maintain contact lists.
+- **Real-time Messaging**: Instant communication between users.  
+- **AI-Powered Translation**: Chat with people speaking different languages effortlessly.  
+- **Secure Authentication**: Token-based authentication using JWT.  
+- **Chat Management**: Create chats, send messages, and maintain contact lists.
 
 ## Technology Stack
 
-**Backend**: FastAPI  
-**Frontend**: React  
-**Database**: PostgreSQL with SQLAlchemy ORM  
-**AI Translation**: Integrated AI for real-time message translation
+- **Backend**: FastAPI  
+- **Frontend**: React  
+- **Database**: PostgreSQL with SQLAlchemy ORM  
+- **AI Translation**: Integrated AI for real-time message translation
 
 ## Installation
 
 ### Prerequisites
 
-**Python**: 3.12 or later  
-**Dependencies**: Listed in requirements.txt
+- **Python**: 3.12 or later  
+- **Dependencies**: Listed in requirements.txt
 
 ### Setup
 
@@ -64,19 +64,19 @@ uvicorn app.main:app --reload
 
 ### Authentication
 
-**Register**: POST /auth/register - Register a new user.  
-**Login**: POST /auth/login - Authenticate and receive a JWT token.  
-**Current User**: GET /auth/users/me - Retrieve details of the logged-in user.
+- **Register**: POST /auth/register - Register a new user.  
+- **Login**: POST /auth/login - Authenticate and receive a JWT token.  
+- **Current User**: GET /auth/users/me - Retrieve details of the logged-in user.
 
 ### Messaging
 
-**Send/Receive Messages**: POST /chat/{chat_id}/message  
-**Get Messages**: GET /chat/{chat_id}/message
+- **Send/Receive Messages**: POST /chat/{chat_id}/message  
+- **Get Messages**: GET /chat/{chat_id}/message
 
 ### Contacts and Chats
 
-**Get Contacts**: GET /contacts  
-**Create Chat**: POST /chat
+- **Get Contacts**: GET /contacts  
+- **Create Chat**: POST /chat
 
 ## Database
 
@@ -104,9 +104,9 @@ pytest
 
 The tests cover:
 
-- User registration and login  
-JWT token generation and validation  
-Messaging functionalities
+- User registration and login                                  
+- JWT token generation and validation  
+- Messaging functionalities
 
 ## Environment Variables
 
