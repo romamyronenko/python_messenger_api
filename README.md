@@ -12,7 +12,7 @@ FastAPI Messenger is a real-time messaging platform designed for seamless commun
 ## Technology Stack
 
 **Backend**: FastAPI  
-**Frontend**: React
+**Frontend**: React  
 **Database**: PostgreSQL with SQLAlchemy ORM  
 **AI Translation**: Integrated AI for real-time message translation
 
