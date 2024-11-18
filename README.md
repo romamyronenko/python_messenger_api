@@ -27,7 +27,7 @@ FastAPI Messenger is a real-time messaging platform designed for seamless commun
 
 1. Clone the repository:
 
-git clone https://github.com/romamyronenko/python_messenger_api.git
+git clone https://github.com/romamyronenko/python_messenger_api.git    
 cd fastapi-messenger      
 
 2. Install dependencies:
