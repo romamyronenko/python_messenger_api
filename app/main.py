@@ -1,5 +1,3 @@
-from fastapi import FastAPI, Depends, WebSocket, HTTPException, status
-from sqlalchemy.orm import Session
 from typing import List
 
 from fastapi import FastAPI, Depends, WebSocket, HTTPException, status
@@ -38,10 +36,10 @@ def home():
 
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
-    chat_id: int,
-    message: MessageSent,
-    user: str = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        chat_id: int,
+        message: MessageSent,
+        user: str = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     db_message = Message(
         conversation_id=chat_id, message_text=message.message_text, user_id=user.id
@@ -61,34 +59,9 @@ def send_message(
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
 def get_messages(
-    chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)
+        chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
-
-@app.post("/chat/{chat_id}/message", response_model=Message)
-def send_message(
-        chat_id: int,
-        message: Message,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db)
-):
-    db_message = Message(
-        conversation_id=chat_id,
-        message_text=message,
-        user_id=user
-    )
-    db.add(db_message)
-
-    try:
-        db.commit()
-        db.refresh(db_message)
-        return db_message
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
-
 
     if not messages:
         raise HTTPException(
@@ -97,7 +70,6 @@ def send_message(
         )
 
     return messages
-
 
 
 @app.get("/contacts")
