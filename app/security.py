@@ -32,8 +32,8 @@ def get_password_hash(password):
 
 
 def create_access_token(
-    data: dict,
-    expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
+        data: dict,
+        expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
 ):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
@@ -67,8 +67,6 @@ def get_user(db: Session, username: str = None, email: str = None):
 
 
 def get_db():
-    from database import SessionLocal
-
     db = SessionLocal()
     try:
         yield db

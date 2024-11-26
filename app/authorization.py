@@ -1,17 +1,17 @@
 from datetime import timedelta
 
 from fastapi import Depends, HTTPException, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from sqlalchemy.testing.plugin.plugin_base import config
+
 from starlette import status
 
 import database.schema
+from core.config import config
 from app.models import (
     UserCreatedResponse,
     TokenResponse,
     UserAuthRequest,
-    CurrentUserResponse,
+    CurrentUserResponse
 )
 from app.security import (
     UserCreate,
@@ -20,17 +20,15 @@ from app.security import (
     get_db,
     verify_password,
     create_access_token,
-    get_current_user,
+    get_current_user
 )
-from core.config import config
-
 
 auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
 
 @auth_router.post("/register")
 async def register(
-    user: UserCreate, db: Session = Depends(get_db)
+        user: UserCreate, db: Session = Depends(get_db)
 ) -> UserCreatedResponse:
     fields_to_check = {"username": user.username, "email": user.email}
 
@@ -49,7 +47,7 @@ async def register(
 
 @auth_router.post("/login")
 async def login(
-    form_data: UserAuthRequest, db: Session = Depends(get_db)
+        form_data: UserAuthRequest, db: Session = Depends(get_db)
 ) -> TokenResponse:
     user = get_user(db, form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -67,7 +65,7 @@ async def login(
 
 @auth_router.get("/users/me")
 async def read_users_me(
-    current_user: database.schema.User = Depends(get_current_user),
+        current_user: database.schema.User = Depends(get_current_user),
 ) -> CurrentUserResponse:
     return CurrentUserResponse(
         id=current_user.id,
