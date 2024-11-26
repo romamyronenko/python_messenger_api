@@ -24,16 +24,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def verify_password(plain_password: str, hashed_password: bytes) -> bool:
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password)
 
 
 def get_password_hash(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
 
 def create_access_token(
-        data: dict,
-        expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
+    data: dict,
+    expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
 ):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
@@ -44,7 +44,7 @@ def create_access_token(
 
 def create_user(db: Session, user: UserCreate):
     hashed_password: bytes = bcrypt.hashpw(
-        user.password.encode('utf-8'), bcrypt.gensalt()
+        user.password.encode("utf-8"), bcrypt.gensalt()
     )
     db_user = database.schema.User(
         username=user.username,
@@ -74,7 +74,9 @@ def get_db():
         db.close()
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
