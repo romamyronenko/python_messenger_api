@@ -2,11 +2,9 @@ from datetime import timedelta
 
 from fastapi import Depends, HTTPException, APIRouter
 from sqlalchemy.orm import Session
-
 from starlette import status
 
 import database.schema
-from core.config import config
 from app.models import (
     UserCreatedResponse,
     TokenResponse,
@@ -22,6 +20,7 @@ from app.security import (
     create_access_token,
     get_current_user,
 )
+from core.config import config
 
 auth_router = APIRouter(prefix="/auth", tags=["authentication"])
 

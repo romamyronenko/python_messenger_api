@@ -82,7 +82,7 @@ def create_chat(user: str = Depends(get_current_user)):
     pass
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import uvicorn
 
     uvicorn.run("main:app")
