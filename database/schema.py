@@ -7,7 +7,6 @@ from sqlalchemy import (
     Boolean,
     TIMESTAMP,
     ForeignKey,
-    DateTime,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
@@ -60,7 +59,7 @@ class ConversationParticipant(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(
-        Integer, ForeignKey("conversations.conversation_id"), nullable=False
+        Integer, ForeignKey("conversations.id"), nullable=False
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
@@ -101,6 +100,3 @@ class Contact(Base):
     user = relationship("User", foreign_keys=[user_id])
 
     contact_user = relationship("User", foreign_keys=[contact_user_id])
-
-
-

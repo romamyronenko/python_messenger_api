@@ -1,9 +1,11 @@
 from typing import List
 
-from fastapi import FastAPI, Depends, WebSocket, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
+
+import database
 from app.authorization import auth_router
 from app.models import MessageSent, MessageGet
 from app.security import get_current_user, get_db
@@ -74,10 +76,13 @@ def get_messages(
 def get_contacts(user: str = Depends(get_current_user)):
     pass
 
+
 @app.post("/chat")
 def create_chat(user: str = Depends(get_current_user)):
     pass
 
+
 if __name__ == '__main__':
     import uvicorn
+
     uvicorn.run("main:app")
