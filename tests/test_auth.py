@@ -5,7 +5,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_register(cleanup_user):
+def test_register(cleanup_db):
     response = client.post(
         "/auth/register/",
         json={

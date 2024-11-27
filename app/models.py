@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -17,11 +20,25 @@ class UserAuthRequest(BaseModel):
 
 
 class Message(BaseModel):
-    id: int
-    chat_id: int
-    text: str
+    conversation_id: int
+    message_text: str
     user_id: int
-    content: str
+    content: Optional[str] = None
+    sent_at: Optional[datetime] = None
+
+
+class MessageSent(BaseModel):
+    conversation_id: int
+    message_text: str
+    user_id: int
+
+
+class MessageGet(BaseModel):
+    conversation_id: int
+    message_text: str
+
+    class Config:
+        orm_mode = True
 
 
 class CurrentUserResponse(BaseModel):

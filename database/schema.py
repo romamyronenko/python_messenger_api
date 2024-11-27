@@ -38,7 +38,7 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     message_text = Column(String, nullable=False)
-    sent_at = Column(TIMESTAMP, default=current_timestamp)
+    sent_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     user = relationship("User", back_populates="messages")
     conversation = relationship("Conversation", back_populates="messages")
@@ -49,7 +49,7 @@ class Conversation(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     is_group = Column(Boolean, default=False)
-    created_at = Column(TIMESTAMP, default=current_timestamp)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     messages = relationship("Message", back_populates="conversation")
 
