@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
 
 import database
+from ai_tools.ai_transate import translate
 from app.authorization import auth_router
 from app.models import MessageSent, MessageGet
 from app.security import get_current_user, get_db
@@ -55,6 +56,17 @@ def send_message(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+@app.post("/chat/{chat_id}/message", response_model=MessageSent)
+def ai_translate(
+        chat_id: int,
+        message: MessageSent,
+        user: str = Depends(get_current_user),
+        db: Session = Depends(get_db),
+
+):
+
+
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
