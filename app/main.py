@@ -42,10 +42,10 @@ def home():
 
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
-    chat_id: int,
-    message: MessageSent,
-    user: str = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        chat_id: int,
+        message: MessageSent,
+        user: str = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     db_message = Message(
         conversation_id=chat_id, message_text=message.message_text, user_id=user.id
@@ -62,19 +62,9 @@ def send_message(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
-@app.post("/chat/{chat_id}/message", response_model=MessageSent)
-def ai_translate(
-        chat_id: int,
-        message: MessageSent,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
-
-):
-
-
-
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
+<<<<<<< HEAD
 def get_messages(chat_id: int, db: Session = Depends(get_db)):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
@@ -87,6 +77,7 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
     return messages
 
 
+<<<<<<< HEAD
 def save_translated_message(db: Session, data: dict) -> Message:
     translated_message = Message(
         conversation_id=data["chat_id"],
@@ -136,9 +127,11 @@ def ai_translate(
         )
 
 
+
 @app.get("/username", response_model=UserAuthResponse)
 def get_username(current_user: User = Depends(get_current_user)):
     return UserAuthResponse(username=current_user.username)
+
 
 @app.get("/contacts")
 def get_contacts(user: str = Depends(get_current_user)):
