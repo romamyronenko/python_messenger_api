@@ -6,7 +6,7 @@ from sqlalchemy import (
     String,
     Boolean,
     TIMESTAMP,
-    ForeignKey,
+    ForeignKey, Float, JSON, Text,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
@@ -37,9 +37,9 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    message_text = Column(String, nullable=False)
-    translated_text = Column(String)
-    language = Column(String, nullable=False)
+    message_text = Column(Text, nullable=False)
+    translated_text = Column(Text)
+    language = Column(String)
     sent_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     user = relationship("User", back_populates="messages")

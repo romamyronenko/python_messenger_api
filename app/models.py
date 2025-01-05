@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 
 
 class UserCreatedResponse(BaseModel):
@@ -21,7 +21,7 @@ class UserAuthRequest(BaseModel):
 
 class Message(BaseModel):
     conversation_id: int
-    message_text: str
+    message_text: str | int | float
     user_id: int
     content: Optional[str] = None
     sent_at: Optional[datetime] = None
@@ -29,28 +29,28 @@ class Message(BaseModel):
 
 class MessageSent(BaseModel):
     conversation_id: Optional[int]
-    message_text: str
+    message_text: str | int | float
     user_id: Optional[int]
 
 
 class MessageGet(BaseModel):
     conversation_id: int
-    message_text: str
+    message_text: str | int | float
 
     class Config:
         orm_mode = True
 
 
 class MessageTranslateRequest(BaseModel):
-    message_text: str
+    message_text: str | int | float
     language: Optional[str]
 
 
 class MessageTranslateResponse(BaseModel):
     conversation_id: int
     user_id: int
-    message_text: str
-    translated_text: str
+    message_text: str | int | float
+    translated_text: str | int | float
     language: str
 
 
