@@ -43,7 +43,7 @@ class MessageGet(BaseModel):
 
 class MessageTranslateRequest(BaseModel):
     message_text: str
-    language: str
+    language: Optional[str]
 
 
 class MessageTranslateResponse(BaseModel):

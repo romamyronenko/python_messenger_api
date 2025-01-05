@@ -86,14 +86,15 @@ def ai_translate(
         )
 
     try:
-        translation = translate(message, language="zh")
+        translation = translate(message, language=message.language)
         translated_message = Message(
             conversation_id=chat_id,
             message_text=message.message_text,
             translated_text=translation,
-            language="zh",
-            user_id=user.id,
+            language=message.language,
+            user_id=user.id
         )
+
         db.add(translated_message)
         db.commit()
         db.refresh(translated_message)
