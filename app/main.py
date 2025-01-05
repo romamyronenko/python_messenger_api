@@ -8,7 +8,7 @@ from starlette.testclient import TestClient
 import database
 from ai_tools.ai_transate import translate
 from app.authorization import auth_router
-from app.models import MessageSent, MessageGet
+from app.models import MessageSent, MessageGet, MessageTranslateResponse, MessageTranslateRequest
 from app.security import get_current_user, get_db
 from database import engine
 from database.schema import Message
@@ -37,10 +37,10 @@ def home():
 
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
-    chat_id: int,
-    message: MessageSent,
-    user: str = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        chat_id: int,
+        message: MessageSent,
+        user: str = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     db_message = Message(
         conversation_id=chat_id, message_text=message.message_text, user_id=user.id
@@ -57,21 +57,10 @@ def send_message(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
-@app.post("/chat/{chat_id}/message", response_model=MessageSent)
-def ai_translate(
-        chat_id: int,
-        message: MessageSent,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
-
-):
-
-
-
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
 def get_messages(
-    chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)
+        chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
@@ -82,6 +71,34 @@ def get_messages(
         )
 
     return messages
+
+
+@app.post("/chat/{chat_id}/translate", response_model=MessageTranslateResponse)
+def ai_translate(
+        chat_id: int,
+        message: MessageTranslateRequest,
+        user: str = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    if not message.message_text:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message text cannot be empty."
+        )
+
+    try:
+        translation = translate(message, language="en")
+        return MessageTranslateResponse(
+            conversation_id=chat_id,
+            message_text=message.message_text,
+            translated_text=translation,
+            language="en",
+            user_id=user.id,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
 
 
 @app.get("/contacts")
