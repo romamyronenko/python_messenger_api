@@ -21,7 +21,7 @@ parser = StrOutputParser()
 chain = prompt_template | model | parser
 
 
-def translate(message: Message, language: str = "en"):
+def translate(message: Message, language: str):
     if not message.message_text:
         raise ValueError("Message text cannot be empty.")
     try:

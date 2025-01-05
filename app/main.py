@@ -64,7 +64,6 @@ def send_message(
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
-<<<<<<< HEAD
 def get_messages(chat_id: int, db: Session = Depends(get_db)):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
@@ -77,7 +76,6 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
     return messages
 
 
-<<<<<<< HEAD
 def save_translated_message(db: Session, data: dict) -> Message:
     translated_message = Message(
         conversation_id=data["chat_id"],
@@ -101,6 +99,7 @@ def ai_translate(
 ):
     if not message.message_text:
         raise HTTPException(
+<<<<<<< HEAD
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Message text cannot be empty.",
         )
