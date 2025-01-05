@@ -1,4 +1,5 @@
 import os
+from typing import Union
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -32,3 +33,4 @@ def translate(message: Message, language: str):
         return translation
     except Exception as e:
         raise RuntimeError(f"Translation failed: {str(e)}")
+

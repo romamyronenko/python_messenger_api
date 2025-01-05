@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel
 
 
 class UserCreatedResponse(BaseModel):
