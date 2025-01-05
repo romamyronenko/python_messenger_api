@@ -21,7 +21,7 @@ class UserAuthRequest(BaseModel):
 
 class Message(BaseModel):
     conversation_id: int
-    message_text: str | int | float
+    message_text: str
     user_id: int
     content: Optional[str] = None
     sent_at: Optional[datetime] = None
@@ -29,28 +29,28 @@ class Message(BaseModel):
 
 class MessageSent(BaseModel):
     conversation_id: Optional[int]
-    message_text: str | int | float
+    message_text: str
     user_id: Optional[int]
 
 
 class MessageGet(BaseModel):
     conversation_id: int
-    message_text: str | int | float
+    message_text: str
 
     class Config:
         orm_mode = True
 
 
 class MessageTranslateRequest(BaseModel):
-    message_text: str | int | float
+    message_text: str
     language: Optional[str]
 
 
 class MessageTranslateResponse(BaseModel):
     conversation_id: int
     user_id: int
-    message_text: str | int | float
-    translated_text: str | int | float
+    message_text: str
+    translated_text: str
     language: str
 
 
