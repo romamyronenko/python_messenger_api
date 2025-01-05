@@ -99,7 +99,6 @@ def ai_translate(
 ):
     if not message.message_text:
         raise HTTPException(
-<<<<<<< HEAD
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Message text cannot be empty.",
         )
@@ -124,7 +123,6 @@ def ai_translate(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
-
 
 
 @app.get("/username", response_model=UserAuthResponse)
