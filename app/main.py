@@ -82,20 +82,25 @@ def ai_translate(
 ):
     if not message.message_text:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Message text cannot be empty."
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Message text cannot be empty."
         )
 
     try:
-        translation = translate(message, language="en")
-        return MessageTranslateResponse(
+        translation = translate(message, language="zh")
+        translated_message = Message(
             conversation_id=chat_id,
             message_text=message.message_text,
             translated_text=translation,
-            language="en",
+            language="zh",
             user_id=user.id,
         )
+        db.add(translated_message)
+        db.commit()
+        db.refresh(translated_message)
+        return translated_message
+
     except Exception as e:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )

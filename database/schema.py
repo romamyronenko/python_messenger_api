@@ -38,6 +38,8 @@ class Message(Base):
     conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     message_text = Column(String, nullable=False)
+    translated_text = Column(String)
+    language = Column(String, nullable=False)
     sent_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     user = relationship("User", back_populates="messages")
