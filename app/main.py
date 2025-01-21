@@ -42,10 +42,10 @@ def home():
 
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
-        chat_id: int,
-        message: MessageSent,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
+    chat_id: int,
+    message: MessageSent,
+    user: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     db_message = Message(
         conversation_id=chat_id, message_text=message.message_text, user_id=user.id

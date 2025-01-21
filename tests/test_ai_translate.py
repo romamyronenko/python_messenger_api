@@ -19,7 +19,6 @@ class TestTranslateEndpoint:
         create_db_user_msg,
         login_test_user,
     ):
-         
         mock_translate.return_value = MessageTranslateResponse(
             conversation_id=1,
             message_text="Hello, this is a test message",
