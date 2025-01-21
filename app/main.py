@@ -42,10 +42,10 @@ def home():
 
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
-        chat_id: int,
-        message: MessageSent,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
+    chat_id: int,
+    message: MessageSent,
+    user: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     db_message = Message(
         conversation_id=chat_id, message_text=message.message_text, user_id=user.id
@@ -76,20 +76,13 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
     return messages
 
 
-def save_translated_message(
-        db: Session,
-        chat_id: int,
-        message_text: str,
-        translated_text: str,
-        language: str,
-        user_id: int,
-) -> Message:
+def save_translated_message(db: Session, data: dict) -> Message:
     translated_message = Message(
-        conversation_id=chat_id,
-        message_text=message_text,
-        translated_text=translated_text,
-        language=language,
-        user_id=user_id,
+        conversation_id=data["chat_id"],
+        message_text=data["message_text"],
+        translated_text=data["translated_text"],
+        language=data["language"],
+        user_id=data["user_id"],
     )
     db.add(translated_message)
     db.commit()
@@ -99,28 +92,30 @@ def save_translated_message(
 
 @app.post("/chat/{chat_id}/translate", response_model=MessageTranslateResponse)
 def ai_translate(
-        chat_id: int,
-        message: MessageTranslateRequest,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
+    chat_id: int,
+    message: MessageTranslateRequest,
+    user: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     if not message.message_text:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Message text cannot be empty."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message text cannot be empty.",
         )
 
     try:
 
         translation = translate(message, language=message.language)
 
-        translated_message = save_translated_message(
-            db=db,
-            chat_id=chat_id,
-            message_text=message.message_text,
-            translated_text=translation,
-            language=message.language,
-            user_id=user.id,
-        )
+        data = {
+            "chat_id": chat_id,
+            "message_text": message.message_text,
+            "translated_text": translation,
+            "language": message.language,
+            "user_id": user.id,
+        }
+
+        translated_message = save_translated_message(db=db, data=data)
         return translated_message
 
     except Exception as e:
