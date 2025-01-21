@@ -1,6 +1,5 @@
 import pytest
 from sqlalchemy.orm import Session
-from sqlalchemy.testing import db
 
 from app.main import client
 from app.security import create_user, UserCreate, get_db
@@ -56,5 +55,3 @@ def cleanup_db():
         db.query(User).delete()
         db.commit()
         db.close()
-
-
