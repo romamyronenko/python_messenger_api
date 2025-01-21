@@ -6,7 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
 
 import database
-from ai_tools.ai_transate import translate
+from ai_tools.ai_translate import translate
 from app.authorization import auth_router
 from app.models import MessageSent, MessageGet, MessageTranslateResponse, MessageTranslateRequest
 from app.security import get_current_user, get_db
@@ -60,7 +60,7 @@ def send_message(
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
 def get_messages(
-        chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)
+        chat_id: int, db: Session = Depends(get_db)
 ):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
@@ -92,7 +92,7 @@ def ai_translate(
             message_text=message.message_text,
             translated_text=translation,
             language=message.language,
-            user_id=user.id
+            user_id=user.id,
         )
 
         db.add(translated_message)

@@ -6,7 +6,7 @@ from sqlalchemy import (
     String,
     Boolean,
     TIMESTAMP,
-    ForeignKey, Float, JSON, Text,
+    ForeignKey, Text,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
