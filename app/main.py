@@ -64,6 +64,7 @@ def send_message(
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
+<<<<<<< HEAD
 def get_messages(chat_id: int, db: Session = Depends(get_db)):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
