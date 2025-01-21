@@ -8,7 +8,12 @@ from starlette.testclient import TestClient
 import database
 from ai_tools.ai_translate import translate
 from app.authorization import auth_router
-from app.models import MessageSent, MessageGet, MessageTranslateResponse, MessageTranslateRequest
+from app.models import (
+    MessageSent,
+    MessageGet,
+    MessageTranslateResponse,
+    MessageTranslateRequest,
+)
 from app.security import get_current_user, get_db
 from database import engine
 from database.schema import Message
@@ -59,9 +64,7 @@ def send_message(
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
-def get_messages(
-        chat_id: int, db: Session = Depends(get_db)
-):
+def get_messages(chat_id: int, db: Session = Depends(get_db)):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
     if not messages:
@@ -71,6 +74,27 @@ def get_messages(
         )
 
     return messages
+
+
+def save_translated_message(
+        db: Session,
+        chat_id: int,
+        message_text: str,
+        translated_text: str,
+        language: str,
+        user_id: int,
+) -> Message:
+    translated_message = Message(
+        conversation_id=chat_id,
+        message_text=message_text,
+        translated_text=translated_text,
+        language=language,
+        user_id=user_id,
+    )
+    db.add(translated_message)
+    db.commit()
+    db.refresh(translated_message)
+    return translated_message
 
 
 @app.post("/chat/{chat_id}/translate", response_model=MessageTranslateResponse)
@@ -86,18 +110,17 @@ def ai_translate(
         )
 
     try:
+
         translation = translate(message, language=message.language)
-        translated_message = Message(
-            conversation_id=chat_id,
+
+        translated_message = save_translated_message(
+            db=db,
+            chat_id=chat_id,
             message_text=message.message_text,
             translated_text=translation,
             language=message.language,
             user_id=user.id,
         )
-
-        db.add(translated_message)
-        db.commit()
-        db.refresh(translated_message)
         return translated_message
 
     except Exception as e:
@@ -117,7 +140,7 @@ def create_chat(user: str = Depends(get_current_user)):
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:app")

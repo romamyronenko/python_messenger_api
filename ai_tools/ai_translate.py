@@ -12,10 +12,9 @@ OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
 SYSTEM_TEMPLATE = "Translate the following into {language}:"
 model = ChatOpenAI(temperature=0.9, openai_api_key=OPEN_AI_API_KEY)
 
-prompt_template = ChatPromptTemplate.from_messages([
-    ('system', SYSTEM_TEMPLATE),
-    ('user', '{text}')
-])
+prompt_template = ChatPromptTemplate.from_messages(
+    [("system", SYSTEM_TEMPLATE), ("user", "{text}")]
+)
 
 parser = StrOutputParser()
 chain = prompt_template | model | parser
@@ -25,11 +24,12 @@ def translate(message: Message, language: str):
     if not message.message_text:
         raise ValueError("Message text cannot be empty.")
     try:
-        translation = chain.invoke({
-            "text": message.message_text,
-            "language": language,
-        })
+        translation = chain.invoke(
+            {
+                "text": message.message_text,
+                "language": language,
+            }
+        )
         return translation
     except Exception as e:
         raise RuntimeError(f"Translation failed: {str(e)}")
-

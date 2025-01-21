@@ -24,11 +24,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def verify_password(plain_password: str, hashed_password: bytes) -> bool:
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password)
 
 
 def get_password_hash(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
 
 def create_access_token(
