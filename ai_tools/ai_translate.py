@@ -4,16 +4,18 @@ from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-
+from ai_tools.prompt import translate_prompt
 from app.models import Message
 
 load_dotenv()
 OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
-SYSTEM_TEMPLATE = "Translate the following into {language}:"
+
 model = ChatOpenAI(temperature=0.9, openai_api_key=OPEN_AI_API_KEY)
 
+
 prompt_template = ChatPromptTemplate.from_messages(
-    [("system", SYSTEM_TEMPLATE), ("user", "{text}")]
+    [("system", translate_prompt
+), ("user", "{text}")]
 )
 
 parser = StrOutputParser()
