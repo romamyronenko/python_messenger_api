@@ -10,7 +10,7 @@ from app.models import Message
 load_dotenv()
 OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
 
-<<<<<<< HEAD
+
 model = ChatOpenAI(temperature=0.3, openai_api_key=OPEN_AI_API_KEY)
 
 
