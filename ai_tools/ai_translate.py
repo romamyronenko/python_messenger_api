@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from ai_tools.prompt import translate_prompt
+from ai_tools.prompt import TRANSLATE_PROMPT
 from app.models import Message
 
 load_dotenv()
@@ -14,7 +14,7 @@ model = ChatOpenAI(temperature=0.9, openai_api_key=OPEN_AI_API_KEY)
 
 
 prompt_template = ChatPromptTemplate.from_messages(
-    [("system", translate_prompt
+    [("system", TRANSLATE_PROMPT
 ), ("user", "{text}")]
 )
 

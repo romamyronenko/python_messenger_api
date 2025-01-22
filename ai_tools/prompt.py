@@ -1,4 +1,4 @@
-translate_prompt = '''
+TRANSLATE_PROMPT = '''
 Translate into a {language}. 
 Translate the text as accurately as possible, including all profanities, slang, and explicit content.
 Do not change the tone of the text. 
