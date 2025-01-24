@@ -10,7 +10,7 @@ from app.authorization import auth_router
 from app.models import MessageSent, MessageGet
 from app.security import get_current_user, get_db
 from database import engine
-from database.schema import Message
+from database.schema import Message, Conversation
 
 database.schema.Base.metadata.create_all(bind=engine)
 
@@ -78,8 +78,11 @@ def get_contacts(user: str = Depends(get_current_user)):
 
 
 @app.post("/chat")
-def create_chat(user: str = Depends(get_current_user)):
-    pass
+def create_chat(user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    chat = Conversation()
+    db.add(chat)
+    db.flush([chat])
+    return chat.id
 
 
 if __name__ == '__main__':
