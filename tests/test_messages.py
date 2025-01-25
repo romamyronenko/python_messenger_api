@@ -4,7 +4,6 @@ from app.main import app
 from app.security import get_db
 from database.schema import Message
 
-
 client = TestClient(app)
 
 
