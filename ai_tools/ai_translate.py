@@ -10,12 +10,11 @@ from app.models import Message
 load_dotenv()
 OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
 
-model = ChatOpenAI(temperature=0.9, openai_api_key=OPEN_AI_API_KEY)
+model = ChatOpenAI(temperature=0.3, openai_api_key=OPEN_AI_API_KEY)
 
 
 prompt_template = ChatPromptTemplate.from_messages(
-    [("system", TRANSLATE_PROMPT
-), ("user", "{text}")]
+    [("system", TRANSLATE_PROMPT), ("user", "{text}")]
 )
 
 parser = StrOutputParser()

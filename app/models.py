@@ -19,6 +19,10 @@ class UserAuthRequest(BaseModel):
     password: str
 
 
+class UserAuthResponse(BaseModel):
+    username: str
+
+
 class Message(BaseModel):
     conversation_id: int
     message_text: str

@@ -13,10 +13,11 @@ from app.models import (
     MessageGet,
     MessageTranslateResponse,
     MessageTranslateRequest,
+    UserAuthResponse,
 )
 from app.security import get_current_user, get_db
 from database import engine
-from database.schema import Message
+from database.schema import Message, User
 
 database.schema.Base.metadata.create_all(bind=engine)
 
@@ -123,6 +124,11 @@ def ai_translate(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+
+@app.get("/username", response_model=UserAuthResponse)
+def get_username(current_user: User = Depends(get_current_user)):
+    return UserAuthResponse(username=current_user.username)
 
 
 @app.get("/contacts")
