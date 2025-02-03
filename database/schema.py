@@ -25,7 +25,6 @@ class User(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
-    last_login = Column(TIMESTAMP)
 
     messages = relationship("Message", back_populates="user")
     roles = relationship("UserRole", back_populates="user")
@@ -59,7 +58,7 @@ class ConversationParticipant(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id: Column[int] = Column(Integer, ForeignKey("users.id"), nullable=False)
     joined_at = Column(TIMESTAMP, default=current_timestamp)
 
     conversation = relationship("Conversation")
