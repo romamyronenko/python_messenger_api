@@ -35,7 +35,6 @@ app.add_middleware(
 def home():
     return {"hello": "world"}
 
-
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
         chat_id: int,
@@ -80,7 +79,6 @@ def get_user_chats(user: User = Depends(get_current_user), db: Session = Depends
     print(db.query(ConversationParticipant).all())
     print(user.id)
     return chats
-
 
 @app.get("/contacts")
 def get_contacts(user: str = Depends(get_current_user)):
