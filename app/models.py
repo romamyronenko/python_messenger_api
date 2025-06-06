@@ -19,6 +19,10 @@ class UserAuthRequest(BaseModel):
     password: str
 
 
+class UserAuthResponse(BaseModel):
+    username: str
+
+
 class Message(BaseModel):
     conversation_id: int
     message_text: str
@@ -28,9 +32,9 @@ class Message(BaseModel):
 
 
 class MessageSent(BaseModel):
-    conversation_id: int
+    conversation_id: Optional[int]
     message_text: str
-    user_id: int
+    user_id: Optional[int]
 
 
 class MessageGet(BaseModel):
@@ -39,6 +43,19 @@ class MessageGet(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class MessageTranslateRequest(BaseModel):
+    message_text: str
+    language: Optional[str]
+
+
+class MessageTranslateResponse(BaseModel):
+    conversation_id: int
+    user_id: int
+    message_text: str
+    translated_text: str
+    language: str
 
 
 class CurrentUserResponse(BaseModel):

@@ -1,17 +1,23 @@
-import datetime
 from typing import List
 
 from fastapi import FastAPI, Depends, HTTPException, status
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
+
 import database
+from ai_tools.ai_translate import translate
 from app.authorization import auth_router
-from app.models import MessageSent, MessageGet
+from app.models import (
+    MessageSent,
+    MessageGet,
+    MessageTranslateResponse,
+    MessageTranslateRequest,
+    UserAuthResponse,
+)
 from app.security import get_current_user, get_db
 from database import engine
-from database.schema import Message, Conversation, ConversationParticipant, User
+from database.schema import Message, User
 
 database.schema.Base.metadata.create_all(bind=engine)
 
@@ -34,12 +40,13 @@ app.add_middleware(
 def home():
     return {"hello": "world"}
 
+
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
-        chat_id: int,
-        message: MessageSent,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
+    chat_id: int,
+    message: MessageSent,
+    user: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     db_message = Message(
         conversation_id=chat_id, message_text=message.message_text, user_id=user.id
@@ -58,9 +65,7 @@ def send_message(
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
-def get_messages_from_chat(
-        chat_id: int, user: str = Depends(get_current_user), db: Session = Depends(get_db)
-):
+def get_messages(chat_id: int, db: Session = Depends(get_db)):
     messages = db.query(Message).filter(Message.conversation_id == chat_id).all()
 
     if not messages:
@@ -72,37 +77,71 @@ def get_messages_from_chat(
     return messages
 
 
-@app.get("/chats")
-def get_user_chats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    chats = db.query(ConversationParticipant).filter(ConversationParticipant.user_id == user.id).all()
-    print(db.query(ConversationParticipant).all())
-    print(user.id)
-    return chats
+def save_translated_message(db: Session, data: dict) -> Message:
+    translated_message = Message(
+        conversation_id=data["chat_id"],
+        message_text=data["message_text"],
+        translated_text=data["translated_text"],
+        language=data["language"],
+        user_id=data["user_id"],
+    )
+    db.add(translated_message)
+    db.commit()
+    db.refresh(translated_message)
+    return translated_message
+
+
+@app.post("/chat/{chat_id}/translate", response_model=MessageTranslateResponse)
+def ai_translate(
+    chat_id: int,
+    message: MessageTranslateRequest,
+    user: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not message.message_text:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message text cannot be empty.",
+        )
+
+    try:
+
+        translation = translate(message, language=message.language)
+
+        data = {
+            "chat_id": chat_id,
+            "message_text": message.message_text,
+            "translated_text": translation,
+            "language": message.language,
+            "user_id": user.id,
+        }
+
+        translated_message = save_translated_message(db=db, data=data)
+        return translated_message
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
+
+
+@app.get("/username", response_model=UserAuthResponse)
+def get_username(current_user: User = Depends(get_current_user)):
+    return UserAuthResponse(username=current_user.username)
+
 
 @app.get("/contacts")
 def get_contacts(user: str = Depends(get_current_user)):
     pass
 
 
-class UserIds(BaseModel):
-    users_ids: list[int]
-
-
 @app.post("/chat")
-def create_chat(users_ids: UserIds, user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    chat = Conversation()
-    db.add(chat)
-    db.flush([chat])
-    conv_user = ConversationParticipant(user_id=user.id, conversation_id=chat.id, joined_at=datetime.datetime.now())
-    db.add(conv_user)
-    if users_ids.users_ids:
-        for user_id in users_ids.users_ids:
-            db.add(ConversationParticipant(user_id=user_id, conversation_id=chat.id, joined_at=datetime.datetime.now()))
-    db.commit()
-    return chat.id
+def create_chat(user: str = Depends(get_current_user)):
+    pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:app")
