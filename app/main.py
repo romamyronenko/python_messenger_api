@@ -40,7 +40,6 @@ app.add_middleware(
 def home():
     return {"hello": "world"}
 
-
 @app.post("/chat/{chat_id}/message", response_model=MessageSent)
 def send_message(
     chat_id: int,
@@ -129,7 +128,6 @@ def ai_translate(
 @app.get("/username", response_model=UserAuthResponse)
 def get_username(current_user: User = Depends(get_current_user)):
     return UserAuthResponse(username=current_user.username)
-
 
 @app.get("/contacts")
 def get_contacts(user: str = Depends(get_current_user)):
