@@ -6,10 +6,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.testing.plugin.plugin_base import config
 from starlette import status
 
+import database
+from app.models import CurrentUserResponse
 from app.security import UserCreate, get_user, create_user, get_db, verify_password, create_access_token, \
     get_current_user
 from core.config import config
-from models import models
 
 auth_router = APIRouter(prefix='/auth', tags=['authentication'])
 
@@ -45,7 +46,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
 @auth_router.get("/users/me")
 async def read_users_me(
-    current_user: database.schema.User = Depends(get_current_user),
+        current_user: database.schema.User = Depends(get_current_user),
 ) -> CurrentUserResponse:
     return CurrentUserResponse(
         id=current_user.id,
@@ -53,4 +54,3 @@ async def read_users_me(
         email=current_user.email,
         display_name=current_user.full_name,
     )
-

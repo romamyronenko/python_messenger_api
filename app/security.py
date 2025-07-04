@@ -32,8 +32,8 @@ def get_password_hash(password):
 
 
 def create_access_token(
-    data: dict,
-    expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
+        data: dict,
+        expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
 ):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
@@ -75,7 +75,7 @@ def get_db():
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+        token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
