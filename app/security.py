@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -92,4 +93,35 @@ async def get_current_user(
     user = get_user(db, username=username)
     if user is None:
         raise credentials_exception
+    return user
+
+
+async def get_current_user_from_token(websocket: WebSocket, db: Session):
+    """
+    Get current user from token (for websocket)
+    :param websocket: WebSocket object
+    :param db: database session
+    :return: User object
+    """
+    token = websocket.headers.get("Authorization")
+    if token is None or not token.startswith("Bearer "):
+        await websocket.close(code=1008)
+        return
+
+    token = token.replace("Bearer ", "")
+    try:
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            await websocket.close(code=1008)
+            return
+    except JWTError:
+        await websocket.close(code=1008)
+        return
+
+    user = get_user(db, username=username)
+    if user is None:
+        await websocket.close(code=1008)
+        return
+
     return user

@@ -101,6 +101,7 @@ typing_extensions==4.12.2
 urllib3==2.2.2
 uvicorn==0.30.6
 websocket==0.2.1
+websockets==15.0.1
 wrapt==1.16.0
 yarl==1.13.1
 zope.event==5.0

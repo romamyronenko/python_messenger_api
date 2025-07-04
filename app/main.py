@@ -17,7 +17,7 @@ from app.models import (
     MessageTranslateRequest,
     UserAuthResponse,
 )
-from app.security import get_current_user, get_db
+from app.security import get_current_user, get_db, get_current_user_from_token
 from database import engine
 from database.schema import Message, User
 
@@ -47,8 +47,6 @@ def home():
 async def websocket_endpoint(
         websocket: WebSocket,
         chat_id: int,
-        user: str = Depends(get_current_user),
-        # todo: write a separate function in security.py for getting user for websocket, without Depends, to pass token during connection
         db: Session = Depends(get_db),
 ):
     """
@@ -59,6 +57,10 @@ async def websocket_endpoint(
     :param db: database session
     :return: None
     """
+    user = await get_current_user_from_token(websocket, db)
+    if user is None:
+        return
+
     await manager.connect(chat_id, websocket)
     try:
         while True:
