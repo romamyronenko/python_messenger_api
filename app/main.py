@@ -73,7 +73,7 @@ async def websocket_endpoint(
                 save_message(chat_id, message_text, user.id, db)
 
                 await manager.broadcast(chat_id, f"User {user.username} says: {message_text}")
-
+            # TODO: Add support for other actions (messages translation, etc.)
             else:
                 await websocket.send_text("Unsupported action")
     except WebSocketDisconnect:
@@ -108,29 +108,6 @@ def save_message(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
-
-# @app.post("/chat/{chat_id}/message", response_model=MessageSent)
-# def send_message(
-#         chat_id: int,
-#         message: MessageSent,
-#         user: str = Depends(get_current_user),
-#         db: Session = Depends(get_db),
-# ):
-#     db_message = Message(
-#         conversation_id=chat_id, message_text=message.message_text, user_id=user.id
-#     )
-#     db.add(db_message)
-#
-#     try:
-#         db.commit()
-#         db.refresh(db_message)
-#         return db_message
-#     except Exception as e:
-#         db.rollback()
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-#         )
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
