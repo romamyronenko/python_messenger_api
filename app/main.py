@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import FastAPI, Depends, Request, HTTPException, WebSocket, status
+from fastapi import FastAPI, Depends, HTTPException, WebSocket, status
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
@@ -11,9 +11,7 @@ from ai_tools.ai_translate import translate
 from app.authorization import auth_router
 from app.connection_manager import manager
 from app.models import (
-    MessageSent,
     MessageGet,
-    MessageTranslateResponse,
     MessageTranslateRequest,
     UserAuthResponse,
 )
@@ -73,6 +71,22 @@ async def websocket_endpoint(
                 save_message(chat_id, message_text, user.id, db)
 
                 await manager.broadcast(chat_id, f"User {user.username} says: {message_text}")
+            elif action == "translate":
+                message_text = payload.get("message_text")
+                language = payload.get("language")
+
+                message_request = MessageTranslateRequest(
+                    message_text=message_text,
+                    language=language
+                )
+
+                translated_message = ai_translate(
+                    chat_id=chat_id,
+                    message=message_request,
+                    user=user,
+                    db=db
+                )
+                await manager.broadcast(chat_id, f"Translated message: {translated_message.translated_text}")
             # TODO: Add support for other actions (messages translation, etc.)
             else:
                 await websocket.send_text("Unsupported action")
@@ -123,27 +137,13 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
     return messages
 
 
-def save_translated_message(db: Session, data: dict) -> Message:
-    translated_message = Message(
-        conversation_id=data["chat_id"],
-        message_text=data["message_text"],
-        translated_text=data["translated_text"],
-        language=data["language"],
-        user_id=data["user_id"],
-    )
-    db.add(translated_message)
-    db.commit()
-    db.refresh(translated_message)
-    return translated_message
-
-
-@app.post("/chat/{chat_id}/translate", response_model=MessageTranslateResponse)
 def ai_translate(
         chat_id: int,
         message: MessageTranslateRequest,
-        user: str = Depends(get_current_user),
-        db: Session = Depends(get_db),
+        user: User,
+        db: Session,
 ):
+    """"AI-traslation handler"""
     if not message.message_text:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -151,7 +151,6 @@ def ai_translate(
         )
 
     try:
-
         translation = translate(message, language=message.language)
 
         data = {
@@ -170,6 +169,24 @@ def ai_translate(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
+
+
+def save_translated_message(db: Session, data: dict) -> Message:
+    translated_message = Message(
+        conversation_id=data["chat_id"],
+        message_text=data["message_text"],
+        translated_text=data["translated_text"],
+        language=data["language"],
+        user_id=data["user_id"],
+    )
+    db.add(translated_message)
+    try:
+        db.commit()
+        db.refresh(translated_message)
+        return translated_message
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/username", response_model=UserAuthResponse)
