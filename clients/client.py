@@ -4,7 +4,7 @@ import websockets
 from concurrent.futures import ThreadPoolExecutor
 
 CHAT_ID = 1
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbmRyaWkiLCJleHAiOjE3NTIwOTYzNzZ9.-wyCaurNxHKefhRy_Uoa6xzbbcouQvQcv2czTDRMzO4"
+TOKEN = "your-jwt-token-here"
 WS_URL = f"ws://localhost:8000/ws/chat/{CHAT_ID}"
 
 

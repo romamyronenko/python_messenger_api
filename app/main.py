@@ -87,7 +87,7 @@ async def websocket_endpoint(
                     db=db
                 )
                 await manager.broadcast(chat_id, f"Translated message: {translated_message.translated_text}")
-            # TODO: Add support for other actions (messages translation, etc.)
+
             else:
                 await websocket.send_text("Unsupported action")
     except WebSocketDisconnect:
