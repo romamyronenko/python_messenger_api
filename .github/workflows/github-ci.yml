@@ -10,7 +10,7 @@ jobs:
         with:
           black_args: ". --check"
 
-  pylint:
+pylint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
