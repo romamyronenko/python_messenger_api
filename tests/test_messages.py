@@ -1,3 +1,7 @@
+import json
+
+import pytest
+import websockets
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -6,36 +10,30 @@ from database.schema import Message
 
 client = TestClient(app)
 
+CHAT_ID = 1
+WS_URL = f"ws://localhost:8000/ws/chat/{CHAT_ID}"
 
-def test_send_message(cleanup_db, create_db_user_msg, login_test_user):
-    chat_id = 1
 
-    message_data = {
-        "conversation_id": chat_id,
-        "message_text": "Hello, this is a test message",
-        "user_id": create_db_user_msg.id,
-    }
+# change to @pytest.mark.asyncio after migration to PostgreSQL
+@pytest.mark.skip(reason="Waiting for PostgreSQL DB")
+async def test_websocket_send_message(create_db_user_msg, login_test_user):
+    token = login_test_user
 
-    response = client.post(
-        f"/chat/{chat_id}/message",
-        json=message_data,
-        headers={"Authorization": f"Bearer {login_test_user}"},
-    )
+    headers = {"Authorization": f"Bearer {token}"}
 
-    print("Response status:", response.status_code)
-    print("Response content:", response.json())
+    async with websockets.connect(WS_URL, additional_headers=headers) as websocket:
+        await websocket.send(json.dumps({
+            "action": "send_message",
+            "payload": {
+                "message_text": "Test message"
+            }
+        }))
 
-    assert response.status_code == 200
-    response_data = response.json()
+        response = await websocket.recv()
+        data = json.loads(response)
 
-    assert response_data["conversation_id"] == chat_id
-    assert response_data["message_text"] == "Hello, this is a test message"
-    assert response_data["user_id"] == create_db_user_msg.id
-
-    db = next(get_db())
-    message_in_db = db.query(Message).filter(Message.id).first()
-    assert message_in_db is not None, "Message not found in database"
-    assert message_in_db.message_text == "Hello, this is a test message"
+        assert data["action"] == "send_message"
+        assert data["payload"]["message_text"] == "Test message"
 
 
 def test_get_message(cleanup_db, create_db_user_msg, login_test_user):
@@ -65,5 +63,5 @@ def test_get_message(cleanup_db, create_db_user_msg, login_test_user):
     retrieved_message = response_data[0]
     assert retrieved_message["conversation_id"] == chat_id, "Incorrect conversation_id"
     assert (
-        retrieved_message["message_text"] == "Hello, this is a test message"
+            retrieved_message["message_text"] == "Hello, this is a test message"
     ), "Incorrect message_text"

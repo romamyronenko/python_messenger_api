@@ -19,19 +19,20 @@ def create_test_user(db: Session):
 
 
 @pytest.fixture()
-def create_db_user():
-    db: Session = next(get_db())
+def create_db_user(db: Session):
+
     db_user = create_test_user(db)
 
     yield db_user
 
     db.delete(db_user)
     db.commit()
+    db.close()
 
 
 @pytest.fixture()
 def create_db_user_msg():
-    db: Session = next(get_db())
+    db = next(get_db())
     db_user = create_test_user(db)
 
     yield db_user

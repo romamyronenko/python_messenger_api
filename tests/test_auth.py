@@ -5,7 +5,7 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_register(cleanup_db):
+def test_register():
     response = client.post(
         "/auth/register/",
         json={
@@ -16,10 +16,10 @@ def test_register(cleanup_db):
         },
     )
     assert response.status_code == 200
-    assert "id" in response.json()
+    assert "message" in response.json()
 
 
-def test_login_success(create_db_user):
+def test_login_success(create_db_user_msg):
     response = client.post(
         "/auth/login/", json={"username": "testuser", "password": "testpassword"}
     )

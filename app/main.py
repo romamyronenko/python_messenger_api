@@ -48,50 +48,76 @@ async def websocket_endpoint(
         db: Session = Depends(get_db),
 ):
     """
-    WebSocket endpoint for chatting
-    :param websocket: WebSocket object
-    :param chat_id: id of the chat
-    :param user: user object
-    :param db: database session
-    :return: None
+    WebSocket endpoint for chat messages.
     """
+    await manager.connect(chat_id, websocket)
     user = await get_current_user_from_token(websocket, db)
+
     if user is None:
         return
 
-    await manager.connect(chat_id, websocket)
     try:
         while True:
             data = await websocket.receive_json()
             action = data.get("action")
             payload = data.get("payload")
+            action_handlers = {
+                "send_message": handle_send_message,
+                "translate": handle_translate,
+            }
 
-            if action == "send_message":
-                message_text = payload.get("message_text")
-                save_message(chat_id, message_text, user.id, db)
-
-                await manager.broadcast(chat_id, f"User {user.username} says: {message_text}")
-            elif action == "translate":
-                message_text = payload.get("message_text")
-                language = payload.get("language")
-
-                message_request = MessageTranslateRequest(
-                    message_text=message_text,
-                    language=language
-                )
-
-                translated_message = ai_translate(
-                    chat_id=chat_id,
-                    message=message_request,
-                    user=user,
-                    db=db
-                )
-                await manager.broadcast(chat_id, f"Translated message: {translated_message.translated_text}")
-
+            handler = action_handlers.get(action)
+            if handler:
+                await handler(payload, chat_id, user, db)
             else:
                 await websocket.send_text("Unsupported action")
     except WebSocketDisconnect:
         manager.disconnect(chat_id, websocket)
+
+
+async def handle_send_message(payload: dict, chat_id: int, user, db: Session):
+    """
+    Handles sending a message to the chat
+    :param payload: payload from the client
+    :param chat_id: id of the chat
+    :param user: user object
+    :param db: database session
+    :return: None
+    """
+    message_text = payload.get("message_text")
+    if not message_text:
+        return
+    save_message(chat_id, message_text, user.id, db)
+    await manager.broadcast(chat_id, f"User {user.username} says: {message_text}")
+
+
+async def handle_translate(payload: dict, chat_id: int, user, db: Session):
+    """
+    Handles translating a message
+    :param payload: payload from the client
+    :param chat_id: id of the chat
+    :param user: user object
+    :param db: database session
+    :return: None
+    """
+    message_text = payload.get("message_text")
+    language = payload.get("language")
+    if not message_text or not language:
+        return
+
+    message_request = MessageTranslateRequest(
+        message_text=message_text,
+        language=language
+    )
+
+    translated_message = ai_translate(
+        chat_id=chat_id,
+        message=message_request,
+        user=user,
+        db=db
+    )
+
+    await manager.broadcast(chat_id, f"Translated message: {translated_message.translated_text}")
 
 
 def save_message(
