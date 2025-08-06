@@ -32,12 +32,25 @@ def payload_translate(message_text: str, language: str) -> dict:
     }
 
 
+commands = {}
+
+
+def register(command_name):
+    def wrapper(func):
+        commands[command_name] = func
+        return func
+
+    return wrapper
+
+
+@register("1")
 async def handle_send(websocket, loop):
     message_text = await loop.run_in_executor(executor, input, "Enter your message: ")
     payload = payload_send_message(message_text)
     await websocket.send(json.dumps(payload))
 
 
+@register("2")
 async def handle_translate(websocket, loop):
     message_text = await loop.run_in_executor(executor, input, "Text to translate: ")
     language = await loop.run_in_executor(executor, input, "Target language code: ")
@@ -45,22 +58,17 @@ async def handle_translate(websocket, loop):
     await websocket.send(json.dumps(payload))
 
 
+@register("3")
 async def handle_exit(websocket, *_):
     logger.info("Exiting...")
     await websocket.close()
 
 
 async def sender(websocket, loop):
-    actions = {
-        "1": handle_send,
-        "2": handle_translate,
-        "3": handle_exit
-    }
-
     while True:
         choice = await loop.run_in_executor(executor, input, "\n[1] Send  [2] Translate  [3] Exit\nChoose: ")
 
-        handler = actions.get(choice)
+        handler = commands.get(choice)
         if handler:
             await handler(websocket, loop)
             if choice == "3":
