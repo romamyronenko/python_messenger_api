@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -32,8 +33,8 @@ def get_password_hash(password):
 
 
 def create_access_token(
-    data: dict,
-    expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
+        data: dict,
+        expires_delta: timedelta = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
 ):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
@@ -55,6 +56,7 @@ def create_user(db: Session, user: UserCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
     return db_user
 
 
@@ -75,7 +77,7 @@ def get_db():
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+        token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -92,4 +94,35 @@ async def get_current_user(
     user = get_user(db, username=username)
     if user is None:
         raise credentials_exception
+    return user
+
+
+async def get_current_user_from_token(websocket: WebSocket, db: Session):
+    """
+    Get current user from token (for websocket)
+    :param websocket: WebSocket object
+    :param db: database session
+    :return: User object
+    """
+    token = websocket.headers.get("Authorization")
+    if token is None or not token.startswith("Bearer "):
+        await websocket.close(code=1008)
+        return
+
+    token = token.replace("Bearer ", "")
+    try:
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            await websocket.close(code=1008)
+            return
+    except JWTError:
+        await websocket.close(code=1008)
+        return
+
+    user = get_user(db, username=username)
+    if user is None:
+        await websocket.close(code=1008)
+        return
+
     return user

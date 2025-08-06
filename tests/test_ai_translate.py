@@ -27,7 +27,7 @@ class TestTranslateEndpoint:
             user_id=1,
         )
 
-        mock_save_translated_message.return_value = MessageTranslateResponse(
+	mock_save_translated_message.return_value = MessageTranslateResponse(
             conversation_id=1,
             message_text="Hello, this is a test message",
             translated_text="Translated text",

@@ -7,7 +7,8 @@ class Config(BaseSettings):
     APP_VERSION: str = "0.0.1"
     SECRET_KEY: ClassVar[str] = "your_secret_key"
     ALGORITHM: ClassVar[str] = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: ClassVar[int] = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: ClassVar[int] = 100
+    SQLALCHEMY_DATABASE_URL: ClassVar[str] = "sqlite:///./messenger.db"
 
     class Config:
         env_file = ".env"

@@ -1,21 +1,21 @@
 from typing import List
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, WebSocket, status
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.testclient import TestClient
+from starlette.websockets import WebSocketDisconnect
 
 import database
 from ai_tools.ai_translate import translate
 from app.authorization import auth_router
+from app.connection_manager import manager
 from app.models import (
-    MessageSent,
     MessageGet,
-    MessageTranslateResponse,
     MessageTranslateRequest,
     UserAuthResponse,
 )
-from app.security import get_current_user, get_db
+from app.security import get_current_user, get_db, get_current_user_from_token
 from database import engine
 from database.schema import Message, User
 
@@ -41,27 +41,113 @@ def home():
     return {"hello": "world"}
 
 
-@app.post("/chat/{chat_id}/message", response_model=MessageSent)
-def send_message(
-    chat_id: int,
-    message: MessageSent,
-    user: str = Depends(get_current_user),
-    db: Session = Depends(get_db),
+@app.websocket("/ws/chat/{chat_id}")
+async def websocket_endpoint(
+        websocket: WebSocket,
+        chat_id: int,
+        db: Session = Depends(get_db),
 ):
-    db_message = Message(
-        conversation_id=chat_id, message_text=message.message_text, user_id=user.id
-    )
-    db.add(db_message)
+    """
+    WebSocket endpoint for chat messages.
+    """
+    await manager.connect(chat_id, websocket)
+    user = await get_current_user_from_token(websocket, db)
 
+    if user is None:
+        return
+
+    try:
+        while True:
+            data = await websocket.receive_json()
+            action = data.get("action")
+            payload = data.get("payload")
+            action_handlers = {
+                "send_message": handle_send_message,
+                "translate": handle_translate,
+            }
+
+            handler = action_handlers.get(action)
+            if handler:
+                await handler(payload, chat_id, user, db)
+            else:
+                await websocket.send_text("Unsupported action")
+    except WebSocketDisconnect:
+        manager.disconnect(chat_id, websocket)
+
+
+async def handle_send_message(payload: dict, chat_id: int, user, db: Session):
+    """
+    Handles sending a message to the chat
+    :param payload: payload from the client
+    :param chat_id: id of the chat
+    :param user: user object
+    :param db: database session
+    :return: None
+    """
+    message_text = payload.get("message_text")
+    if not message_text:
+        return
+    save_message(chat_id, message_text, user.id, db)
+    await manager.broadcast(chat_id, f"User {user.username} says: {message_text}")
+
+
+async def handle_translate(payload: dict, chat_id: int, user, db: Session):
+    """
+    Handles translating a message
+    :param payload: payload from the client
+    :param chat_id: id of the chat
+    :param user: user object
+    :param db: database session
+    :return: None
+    """
+    message_text = payload.get("message_text")
+    language = payload.get("language")
+    if not message_text or not language:
+        return
+
+    message_request = MessageTranslateRequest(
+        message_text=message_text,
+        language=language
+    )
+
+    translated_message = ai_translate(
+        chat_id=chat_id,
+        message=message_request,
+        user=user,
+        db=db
+    )
+
+    await manager.broadcast(chat_id, f"Translated message: {translated_message.translated_text}")
+
+
+def save_message(
+        chat_id: int,
+        message_text: str,
+        user_id: int,
+        db: Session,
+):
+    """
+    Saves message to the database
+    :param chat_id: id of the chat
+    :param message_text: text of the message
+    :param user_id: id of the user who sent the message
+    :param db: database session
+    :return: Message object
+    """
+    db_message = Message(
+        conversation_id=chat_id,
+        message_text=message_text,
+        user_id=user_id,
+    )
+
+    db.add(db_message)
     try:
         db.commit()
         db.refresh(db_message)
         return db_message
     except Exception as e:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/chat/{chat_id}/message", response_model=List[MessageGet])
@@ -77,27 +163,13 @@ def get_messages(chat_id: int, db: Session = Depends(get_db)):
     return messages
 
 
-def save_translated_message(db: Session, data: dict) -> Message:
-    translated_message = Message(
-        conversation_id=data["chat_id"],
-        message_text=data["message_text"],
-        translated_text=data["translated_text"],
-        language=data["language"],
-        user_id=data["user_id"],
-    )
-    db.add(translated_message)
-    db.commit()
-    db.refresh(translated_message)
-    return translated_message
-
-
-@app.post("/chat/{chat_id}/translate", response_model=MessageTranslateResponse)
 def ai_translate(
-    chat_id: int,
-    message: MessageTranslateRequest,
-    user: str = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        chat_id: int,
+        message: MessageTranslateRequest,
+        user: User,
+        db: Session,
 ):
+    """"AI-traslation handler"""
     if not message.message_text:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -105,7 +177,6 @@ def ai_translate(
         )
 
     try:
-
         translation = translate(message, language=message.language)
 
         data = {
@@ -126,6 +197,24 @@ def ai_translate(
         )
 
 
+def save_translated_message(db: Session, data: dict) -> Message:
+    translated_message = Message(
+        conversation_id=data["chat_id"],
+        message_text=data["message_text"],
+        translated_text=data["translated_text"],
+        language=data["language"],
+        user_id=data["user_id"],
+    )
+    db.add(translated_message)
+    try:
+        db.commit()
+        db.refresh(translated_message)
+        return translated_message
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
 @app.get("/username", response_model=UserAuthResponse)
 def get_username(current_user: User = Depends(get_current_user)):
     return UserAuthResponse(username=current_user.username)
@@ -144,4 +233,4 @@ def create_chat(user: str = Depends(get_current_user)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app")
+    uvicorn.run("main:app", reload=True)

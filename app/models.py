@@ -42,7 +42,7 @@ class MessageGet(BaseModel):
     message_text: str
 
     class Config:
-        orm_mode = True
+        model_config = {"from_attributes": True}
 
 
 class MessageTranslateRequest(BaseModel):

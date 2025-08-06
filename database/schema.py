@@ -7,7 +7,6 @@ from sqlalchemy import (
     Boolean,
     TIMESTAMP,
     ForeignKey,
-    DateTime,
     Text,
 )
 from sqlalchemy.dialects.mysql import VARCHAR
